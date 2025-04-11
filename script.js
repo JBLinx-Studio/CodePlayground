@@ -10,322 +10,55 @@ const defaultHTML = `<!-- Write your HTML here -->
 </head>
 <body>
   <div class="container">
-    <h1>Task List</h1>
-    <div class="input-group">
-      <input type="text" id="taskInput" placeholder="Enter a new task...">
-      <button id="addTaskBtn" class="add-btn">Add Task</button>
-    </div>
-    <div id="taskList" class="task-list">
-      <!-- Tasks will be added here -->
-    </div>
-    <div class="controls">
-      <button id="resetBtn" class="control-btn">Reset All Tasks</button>
-      <button id="clearCompletedBtn" class="control-btn">Clear Completed</button>
-      <button id="toggleDarkMode" class="control-btn">Toggle Dark Mode</button>
-    </div>
+    <h1>Hello, World!</h1>
+    <p>Welcome to CodeGenie Studio</p>
   </div>
 </body>
 </html>`;
 
 const defaultCSS = `/* Write your CSS here */
-:root {
-  --primary-color: #ff6b6b;
-  --secondary-color: #4ecdc4;
-  --dark-color: #292f36;
-  --light-color: #f7fff7;
-  --danger-color: #ff6b6b;
-  --success-color: #6bff8a;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-body {
-  background: linear-gradient(135deg, #ff6b6b, #6b6bff);
-  color: var(--dark-color);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 2rem;
-}
-
 .container {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  width: 90%;
-  max-width: 600px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
   padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 h1 {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: var(--primary-color);
+  color: #7c4dff;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
 }
 
-.input-group {
-  display: flex;
-  margin-bottom: 1.5rem;
-}
-
-input {
-  flex: 1;
-  padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 5px 0 0 5px;
-  outline: none;
-  font-size: 1rem;
-}
-
-.add-btn {
-  padding: 0.8rem 1.5rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s;
-}
-
-.add-btn:hover {
-  background-color: #ff5252;
-}
-
-.task-list {
-  margin-bottom: 1.5rem;
-}
-
-.task-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 5px;
-  margin-bottom: 0.8rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s;
-}
-
-.task-item.completed {
-  opacity: 0.7;
-  text-decoration: line-through;
-}
-
-.task-text {
-  flex: 1;
-}
-
-.task-actions button {
-  background: none;
-  border: none;
+p {
+  color: #333;
   font-size: 1.2rem;
-  cursor: pointer;
-  margin-left: 0.5rem;
-  transition: transform 0.2s;
-}
-
-.task-actions button:hover {
-  transform: scale(1.2);
-}
-
-.complete-btn {
-  color: var(--success-color);
-}
-
-.delete-btn {
-  color: var(--danger-color);
-}
-
-.controls {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.control-btn {
-  padding: 0.6rem 1rem;
-  background-color: var(--secondary-color);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.3s;
-}
-
-.control-btn:hover {
-  background-color: #3dbeab;
-}
-
-/* Dark Mode */
-body.dark-mode {
-  background: linear-gradient(135deg, #2c3e50, #4a69bd);
-}
-
-body.dark-mode .container {
-  background-color: rgba(40, 44, 52, 0.9);
-  color: #f8f9fa;
-}
-
-body.dark-mode h1 {
-  color: #f8f9fa;
-}
-
-body.dark-mode input {
-  background-color: #3a3f4b;
-  color: #f8f9fa;
-  border-color: #5a5f6b;
-}
-
-body.dark-mode .task-item {
-  background-color: #3a3f4b;
-  color: #f8f9fa;
-}
-
-body.dark-mode .control-btn {
-  background-color: #5a5f6b;
-}
-
-body.dark-mode .control-btn:hover {
-  background-color: #6c717f;
+  line-height: 1.5;
 }`;
 
 const defaultJS = `// Write your JavaScript here
+console.log("CodeGenie Studio is running!");
+
+// Add an event listener to change the title color when clicked
 document.addEventListener('DOMContentLoaded', function() {
-  // DOM Elements
-  const taskInput = document.getElementById('taskInput');
-  const addTaskBtn = document.getElementById('addTaskBtn');
-  const taskList = document.getElementById('taskList');
-  const resetBtn = document.getElementById('resetBtn');
-  const clearCompletedBtn = document.getElementById('clearCompletedBtn');
-  const toggleDarkModeBtn = document.getElementById('toggleDarkMode');
-  
-  // Load tasks from localStorage
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-  
-  // Load dark mode preference
-  if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark-mode');
-  }
-  
-  // Render tasks
-  function renderTasks() {
-    taskList.innerHTML = '';
-    
-    if (tasks.length === 0) {
-      taskList.innerHTML = '<p style="text-align: center;">No tasks yet. Add one above!</p>';
-      return;
-    }
-    
-    tasks.forEach((task, index) => {
-      const taskItem = document.createElement('div');
-      taskItem.classList.add('task-item');
-      if (task.completed) {
-        taskItem.classList.add('completed');
-      }
-      
-      taskItem.innerHTML = \`
-        <span class="task-text">\${task.text}</span>
-        <div class="task-actions">
-          <button class="complete-btn" data-index="\${index}">✓</button>
-          <button class="delete-btn" data-index="\${index}">✕</button>
-        </div>
-      \`;
-      
-      taskList.appendChild(taskItem);
+  const heading = document.querySelector('h1');
+  if (heading) {
+    heading.addEventListener('click', function() {
+      this.style.color = getRandomColor();
     });
-    
-    // Add event listeners to buttons
-    document.querySelectorAll('.complete-btn').forEach(btn => {
-      btn.addEventListener('click', toggleComplete);
-    });
-    
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', deleteTask);
-    });
-    
-    // Save to localStorage
-    saveTasks();
   }
-  
-  // Save tasks to localStorage
-  function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }
-  
-  // Add new task
-  function addTask() {
-    const text = taskInput.value.trim();
-    if (text === '') return;
-    
-    tasks.push({
-      text,
-      completed: false
-    });
-    
-    taskInput.value = '';
-    renderTasks();
-  }
-  
-  // Toggle task completion
-  function toggleComplete(e) {
-    const index = e.target.dataset.index;
-    tasks[index].completed = !tasks[index].completed;
-    renderTasks();
-  }
-  
-  // Delete task
-  function deleteTask(e) {
-    const index = e.target.dataset.index;
-    tasks.splice(index, 1);
-    renderTasks();
-  }
-  
-  // Reset all tasks
-  function resetTasks() {
-    if (confirm('Are you sure you want to reset all tasks?')) {
-      tasks = [];
-      renderTasks();
-    }
-  }
-  
-  // Clear completed tasks
-  function clearCompleted() {
-    tasks = tasks.filter(task => !task.completed);
-    renderTasks();
-  }
-  
-  // Toggle dark mode
-  function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-  }
-  
-  // Event listeners
-  addTaskBtn.addEventListener('click', addTask);
-  taskInput.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') addTask();
-  });
-  resetBtn.addEventListener('click', resetTasks);
-  clearCompletedBtn.addEventListener('click', clearCompleted);
-  toggleDarkModeBtn.addEventListener('click', toggleDarkMode);
-  
-  // Initial render
-  renderTasks();
 });
 
-// Console log for verification
-console.log('Task List App is running!');
-`;
+// Generate a random color
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}`;
 
 // DOM Elements
 const htmlEditor = document.getElementById('html-editor');
@@ -335,10 +68,10 @@ const previewIframe = document.getElementById('preview-iframe');
 const resetBtn = document.getElementById('reset-btn');
 const clearBtn = document.getElementById('clear-btn');
 const refreshPreviewBtn = document.getElementById('refresh-preview');
+const runBtn = document.getElementById('run-btn');
 const resizeHandle = document.getElementById('resize-handle');
 const editorsPanel = document.getElementById('editors-panel');
 const previewPanel = document.getElementById('preview-panel');
-const runBtn = document.querySelector('.run-btn');
 const viewBtns = document.querySelectorAll('.view-btn');
 const htmlLineNumbers = document.getElementById('html-line-numbers');
 const cssLineNumbers = document.getElementById('css-line-numbers');
@@ -658,10 +391,10 @@ function initEditorListeners() {
   });
   
   // Buttons
-  resetBtn?.addEventListener('click', resetToDefaults);
-  clearBtn?.addEventListener('click', clearAll);
-  refreshPreviewBtn?.addEventListener('click', updatePreview);
-  runBtn?.addEventListener('click', updatePreview);
+  resetBtn.addEventListener('click', resetToDefaults);
+  clearBtn.addEventListener('click', clearAll);
+  refreshPreviewBtn.addEventListener('click', updatePreview);
+  runBtn.addEventListener('click', updatePreview);
 }
 
 // Debounce function to prevent too many preview updates
