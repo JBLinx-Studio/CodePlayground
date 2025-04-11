@@ -8,6 +8,7 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   tagColor: string;
   tagBgColor: string;
+  lineNumbers?: boolean;
 }
 
 export const CodeEditor = ({ 
@@ -16,9 +17,40 @@ export const CodeEditor = ({
   value, 
   onChange,
   tagColor,
-  tagBgColor
+  tagBgColor,
+  lineNumbers = true
 }: CodeEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
+
+  // Update line numbers when content changes
+  useEffect(() => {
+    if (lineNumbers && lineNumbersRef.current) {
+      const lines = value.split('\n');
+      let lineNumbersHTML = '';
+      
+      for (let i = 1; i <= lines.length; i++) {
+        lineNumbersHTML += `<div class="line-number">${i}</div>`;
+      }
+      
+      lineNumbersRef.current.innerHTML = lineNumbersHTML;
+    }
+  }, [value, lineNumbers]);
+
+  // Sync scroll between textarea and line numbers
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    const lineNumbersElement = lineNumbersRef.current;
+    
+    if (!textarea || !lineNumbersElement || !lineNumbers) return;
+    
+    const handleScroll = () => {
+      lineNumbersElement.scrollTop = textarea.scrollTop;
+    };
+    
+    textarea.addEventListener('scroll', handleScroll);
+    return () => textarea.removeEventListener('scroll', handleScroll);
+  }, [lineNumbers]);
 
   // Handle tab key in the editor
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -51,13 +83,19 @@ export const CodeEditor = ({
           {language}
         </span>
       </div>
-      <div className="flex-1 overflow-auto bg-[#151922]">
+      <div className="flex-1 overflow-auto bg-[#151922] flex">
+        {lineNumbers && (
+          <div 
+            ref={lineNumbersRef} 
+            className="line-numbers-container bg-[#1a1f2c] text-[#535966] text-right pr-2 pl-3 pt-4 text-sm font-mono select-none overflow-hidden"
+          ></div>
+        )}
         <textarea
           ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-full h-full p-4 bg-[#151922] text-[#e4e5e7] font-mono text-sm resize-none border-none outline-none leading-relaxed"
+          className={`w-full h-full p-4 bg-[#151922] text-[#e4e5e7] font-mono text-sm resize-none border-none outline-none leading-relaxed ${lineNumbers ? 'pl-2' : 'pl-4'}`}
           spellCheck="false"
         />
       </div>
