@@ -586,7 +586,11 @@ ${htmlContent}
         {(view === 'split' || view === 'preview') && (
           <div 
             className="flex-1"
-            style={{ display: view === 'editor' && isMobile ? 'none' : undefined }}
+            style={{ 
+              display: (view === 'editor' || (view !== 'preview' && view !== 'split')) && isMobile 
+                ? 'none' 
+                : undefined 
+            }}
           >
             <PreviewPanel 
               html={files['index.html']?.content || ''} 
