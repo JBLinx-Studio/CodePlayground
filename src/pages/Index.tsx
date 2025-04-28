@@ -561,7 +561,7 @@ ${htmlContent}
           className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''}`}
           style={{ 
             width: isMobile ? '100%' : `${panelWidth}%`,
-            display: view === 'preview' && isMobile ? 'none' : undefined 
+            display: (view === 'preview' && isMobile) ? 'none' : undefined 
           }}
         >
           <CodeEditor 
@@ -586,7 +586,7 @@ ${htmlContent}
         {(view === 'split' || view === 'preview') && (
           <div 
             className="flex-1"
-            style={{ display: view === 'editor' && isMobile ? 'none' : undefined }}
+            style={{ display: (view === 'editor' && isMobile) ? 'none' : undefined }}
           >
             <PreviewPanel 
               html={files['index.html']?.content || ''} 
