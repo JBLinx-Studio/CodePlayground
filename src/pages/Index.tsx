@@ -535,7 +535,7 @@ ${htmlContent}
         </div>
       </div>
 
-      {/* Editor Container */}
+      {/* Editor Container start and File Explorer */}
       <div 
         className="flex flex-1 overflow-hidden" 
         ref={containerRef}
@@ -587,9 +587,7 @@ ${htmlContent}
           <div 
             className="flex-1"
             style={{ 
-              display: (view === 'editor' || (view !== 'preview' && view !== 'split')) && isMobile 
-                ? 'none' 
-                : undefined 
+              display: (view === 'editor' && isMobile) ? 'none' : undefined 
             }}
           >
             <PreviewPanel 
