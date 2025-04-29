@@ -24,6 +24,8 @@ import {
 import { GitHubIntegration } from "@/components/GitHubIntegration";
 import { AdvancedSettings } from "@/components/AdvancedSettings";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { motion } from 'framer-motion';
 
 export const AppHeader: React.FC = () => {
   const { 
@@ -57,11 +59,20 @@ export const AppHeader: React.FC = () => {
 
   return (
     <>
-      <header className="bg-[#151922] border-b border-[#374151] px-4 py-3 flex justify-between items-center shadow-md">
+      <motion.header 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="bg-[#151922] border-b border-[#374151] px-4 py-3 flex justify-between items-center shadow-md"
+      >
         <div className="flex items-center gap-2">
-          <div className="text-[#6366f1] animate-pulse">
+          <motion.div 
+            className="text-[#6366f1]" 
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             <Code size={24} />
-          </div>
+          </motion.div>
           <h1 className="text-xl font-semibold bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent hover:from-[#818cf8] hover:to-[#d946ef] transition-all duration-300">
             CodePlayground
           </h1>
@@ -126,6 +137,8 @@ export const AppHeader: React.FC = () => {
             <Sparkles size={16} className={`${showAiAssistant ? 'animate-pulse' : ''}`} />
             <span className="hidden lg:inline">AI</span>
           </Button>
+          
+          <ThemeToggle />
           
           <GitHubIntegration files={{}} />
           
@@ -226,7 +239,7 @@ export const AppHeader: React.FC = () => {
             </Sheet>
           )}
         </div>
-      </header>
+      </motion.header>
     </>
   );
 };
