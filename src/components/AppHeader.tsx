@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { 
   RefreshCw, 
   Trash2, 
@@ -33,6 +34,8 @@ export const AppHeader: React.FC = () => {
     copyCode, 
     downloadCode 
   } = useFileSystem();
+
+  const { settings, updateSettings } = useSettings();
 
   return (
     <>
@@ -106,8 +109,8 @@ export const AppHeader: React.FC = () => {
           <GitHubIntegration files={{}} /> {/* Will be replaced by global state */}
           
           <AdvancedSettings 
-            settings={{}}
-            onUpdateSettings={() => {}}
+            settings={settings}
+            onUpdateSettings={updateSettings}
           />
           
           <Button 
