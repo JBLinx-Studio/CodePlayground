@@ -5,6 +5,7 @@ import { EditorState } from "@codemirror/state";
 import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface CodeEditorProps {
   language: string;
@@ -25,6 +26,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const { settings } = useSettings();
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -61,27 +63,27 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         }),
         EditorView.theme({
           "&": {
-            backgroundColor: "#151922",
-            color: "#e4e5e7",
+            backgroundColor: settings.theme === 'dark' ? "#151922" : "#f8f9fa",
+            color: settings.theme === 'dark' ? "#e4e5e7" : "#212529",
             height: "100%",
           },
           ".cm-content": {
             fontFamily: '"Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace',
-            fontSize: "0.875rem",
+            fontSize: settings.fontSize,
           },
           ".cm-gutters": {
-            backgroundColor: "#1c2333",
-            color: "#9ca3af",
+            backgroundColor: settings.theme === 'dark' ? "#1c2333" : "#e9ecef",
+            color: settings.theme === 'dark' ? "#9ca3af" : "#6c757d",
             border: "none",
           },
           ".cm-activeLine": { 
-            backgroundColor: "rgba(55, 65, 81, 0.3)"
+            backgroundColor: settings.theme === 'dark' ? "rgba(55, 65, 81, 0.3)" : "rgba(230, 235, 244, 0.5)"
           },
           ".cm-activeLineGutter": {
-            backgroundColor: "#242a38" 
+            backgroundColor: settings.theme === 'dark' ? "#242a38" : "#dee2e6" 
           },
           ".cm-selectionMatch": { 
-            backgroundColor: "rgba(99, 102, 241, 0.2)" 
+            backgroundColor: settings.theme === 'dark' ? "rgba(99, 102, 241, 0.2)" : "rgba(59, 130, 246, 0.2)" 
           },
         }),
       ],
@@ -97,7 +99,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     return () => {
       view.destroy();
     };
-  }, [language, editorRef.current]);
+  }, [language, editorRef.current, settings.theme, settings.fontSize]);
 
   useEffect(() => {
     if (viewRef.current && viewRef.current.state.doc.toString() !== value) {
