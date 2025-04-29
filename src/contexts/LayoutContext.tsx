@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 interface LayoutContextProps {
@@ -23,7 +24,7 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isResizing, setIsResizing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(false);
 
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
@@ -40,7 +41,7 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const newWidth = startWidthRef.current + (e.clientX - startXRef.current);
       const widthPercentage = (newWidth / containerWidth) * 100;
       
-      // Limit min/max width
+      // Limit min/max width with enhanced smoothing
       if (widthPercentage >= 20 && widthPercentage <= 80) {
         setPanelWidth(widthPercentage);
       }
@@ -67,11 +68,15 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
       
+      // Switch to appropriate view on mobile
+      if (mobile && view === 'split') {
+        setView('editor');
+      }
+      
+      // Update body class for responsive styles
       if (mobile) {
-        // Mobile layout
         document.body.classList.add('mobile-layout');
       } else {
-        // Desktop layout
         document.body.classList.remove('mobile-layout');
       }
     };
@@ -81,6 +86,19 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     return () => {
       window.removeEventListener('resize', handleResize);
+    };
+  }, [view]);
+
+  // Gracefully handle fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
 
@@ -94,11 +112,13 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
-      document.exitFullscreen();
-      setIsFullscreen(false);
+      document.exitFullscreen()
+        .then(() => setIsFullscreen(false))
+        .catch(err => console.error('Error exiting fullscreen:', err));
     } else {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
+      document.documentElement.requestFullscreen()
+        .then(() => setIsFullscreen(true))
+        .catch(err => console.error('Error entering fullscreen:', err));
     }
   };
 
@@ -107,11 +127,21 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     containerRef.current = ref;
   };
 
+  // Custom view setter that handles mobile constraints
+  const handleSetView = (newView: 'split' | 'editor' | 'preview') => {
+    // On mobile, don't allow split view
+    if (isMobile && newView === 'split') {
+      setView('editor');
+    } else {
+      setView(newView);
+    }
+  };
+
   return (
     <LayoutContext.Provider
       value={{
         view,
-        setView,
+        setView: handleSetView,
         panelWidth,
         setPanelWidth,
         isResizing,

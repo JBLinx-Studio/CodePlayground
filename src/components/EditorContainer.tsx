@@ -6,6 +6,7 @@ import { FileExplorer } from "@/components/FileExplorer";
 import { AIAssistant } from "@/components/AiAssistant";
 import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,28 +45,34 @@ export const EditorContainer: React.FC = () => {
 
   return (
     <div 
-      className="flex flex-1 overflow-hidden bg-[#1a1f2c] rounded-lg shadow-lg" 
+      className="flex flex-1 overflow-hidden bg-[#1a1f2c] rounded-lg shadow-xl border border-[#2e3646]/30" 
       ref={containerRef}
     >
       {/* File Explorer */}
-      {shouldShowFileExplorer() && (
-        <div 
-          className="w-64 h-full flex-shrink-0 border-r border-[#2e3646]"
-          style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
-        >
-          <FileExplorer 
-            files={files}
-            currentFile={currentFile}
-            onSelectFile={handleFileSelect}
-            onAddFile={handleAddFile}
-            onDeleteFile={handleDeleteFile}
-          />
-        </div>
-      )}
+      <AnimatePresence>
+        {shouldShowFileExplorer() && (
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+            className="w-64 h-full flex-shrink-0 border-r border-[#2e3646]"
+            style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
+          >
+            <FileExplorer 
+              files={files}
+              currentFile={currentFile}
+              onSelectFile={handleFileSelect}
+              onAddFile={handleAddFile}
+              onDeleteFile={handleDeleteFile}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Editors Panel */}
       <div 
-        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''}`}
+        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''} transition-all duration-200 ease-in-out`}
         style={{ 
           width: isMobile ? '100%' : `${panelWidth}%`,
           display: view === 'preview' && isMobile ? 'none' : undefined 
@@ -84,31 +91,48 @@ export const EditorContainer: React.FC = () => {
       {/* Resize Handle */}
       {!isMobile && view === 'split' && (
         <div 
-          className="w-2 bg-[#374151] hover:bg-[#6366f1] cursor-col-resize transition-colors"
+          className="w-2 bg-[#374151] hover:bg-[#6366f1] cursor-col-resize transition-colors relative"
           onMouseDown={startResize}
-        />
+        >
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-1 bg-[#6366f1] rounded-full opacity-60"></div>
+        </div>
       )}
 
       {/* Preview Panel */}
       {(view === 'split' || view === 'preview') && (
-        <div 
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           className="flex-1"
           style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
+          transition={{ duration: 0.3 }}
         >
           <PreviewPanel 
             html={files['index.html']?.content || ''} 
             css={files['styles.css']?.content || ''} 
             js={files['script.js']?.content || ''}  
           />
-        </div>
+        </motion.div>
       )}
 
       {/* AI Assistant */}
-      <AIAssistant 
-        visible={showAiAssistant}
-        onClose={() => setShowAiAssistant(false)}
-        onInsertCode={insertCodeFromAI}
-      />
+      <AnimatePresence>
+        {showAiAssistant && (
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.2 }}
+            className="absolute right-0 top-0 bottom-0 z-50 lg:relative"
+          >
+            <AIAssistant 
+              visible={showAiAssistant}
+              onClose={() => setShowAiAssistant(false)}
+              onInsertCode={insertCodeFromAI}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

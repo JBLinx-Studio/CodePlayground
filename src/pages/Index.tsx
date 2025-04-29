@@ -19,10 +19,12 @@ const Index = () => {
             <div className="flex-1 p-2 md:p-4 overflow-hidden">
               <EditorContainer />
             </div>
-            <footer className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922] border-t border-[#2e3646]">
-              CodePlayground © {new Date().getFullYear()} - Build amazing web experiences
+            <footer className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922] border-t border-[#2e3646] flex items-center justify-center gap-2">
+              <span>CodePlayground © {new Date().getFullYear()}</span>
+              <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
+              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent">Build amazing web experiences</span>
             </footer>
-            <Toaster position="top-right" richColors />
+            <Toaster position="top-right" richColors closeButton />
           </div>
         </LayoutProvider>
       </FileSystemProvider>
