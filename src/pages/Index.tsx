@@ -561,7 +561,7 @@ ${htmlContent}
           className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''}`}
           style={{ 
             width: isMobile ? '100%' : `${panelWidth}%`,
-            display: (view === 'preview' && isMobile) ? 'none' : undefined 
+            display: view === 'preview' && isMobile ? 'none' : undefined 
           }}
         >
           <CodeEditor 
