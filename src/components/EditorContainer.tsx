@@ -44,13 +44,13 @@ export const EditorContainer: React.FC = () => {
 
   return (
     <div 
-      className="flex flex-1 overflow-hidden" 
+      className="flex flex-1 overflow-hidden bg-[#1a1f2c] rounded-lg shadow-lg" 
       ref={containerRef}
     >
       {/* File Explorer */}
       {shouldShowFileExplorer() && (
         <div 
-          className="w-64 h-full flex-shrink-0"
+          className="w-64 h-full flex-shrink-0 border-r border-[#2e3646]"
           style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
         >
           <FileExplorer 
@@ -93,7 +93,7 @@ export const EditorContainer: React.FC = () => {
       {(view === 'split' || view === 'preview') && (
         <div 
           className="flex-1"
-          style={{ display: view !== 'editor' ? undefined : 'none' }}
+          style={{ display: view === 'editor' ? 'none' : undefined }}
         >
           <PreviewPanel 
             html={files['index.html']?.content || ''} 

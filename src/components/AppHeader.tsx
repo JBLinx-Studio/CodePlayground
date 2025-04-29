@@ -39,21 +39,21 @@ export const AppHeader: React.FC = () => {
 
   return (
     <>
-      <header className="bg-[#151922] border-b border-[#374151] px-4 py-3 flex justify-between items-center">
+      <header className="bg-[#151922] border-b border-[#374151] px-4 py-3 flex justify-between items-center shadow-md">
         <div className="flex items-center gap-2">
-          <div className="text-[#6366f1]">
+          <div className="text-[#6366f1] animate-pulse">
             <Code size={24} />
           </div>
-          <h1 className="text-xl font-semibold bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent">
+          <h1 className="text-xl font-semibold bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent hover:from-[#818cf8] hover:to-[#d946ef] transition-all duration-300">
             CodePlayground
           </h1>
         </div>
         
         <div className="hidden md:flex items-center gap-2">
-          <div className="flex bg-[#242a38] rounded-md overflow-hidden">
+          <div className="flex bg-[#242a38] rounded-md overflow-hidden shadow-inner">
             <Button
               variant="ghost"
-              className={`px-3 py-1 h-8 ${view === 'split' ? 'bg-[#374151] text-white' : 'text-[#9ca3af]'}`}
+              className={`px-3 py-1 h-8 transition-all duration-200 ${view === 'split' ? 'bg-[#374151] text-white shadow-inner' : 'text-[#9ca3af] hover:text-white'}`}
               onClick={() => setView('split')}
             >
               <Columns size={14} className="mr-1" />
@@ -61,7 +61,7 @@ export const AppHeader: React.FC = () => {
             </Button>
             <Button
               variant="ghost"
-              className={`px-3 py-1 h-8 ${view === 'editor' ? 'bg-[#374151] text-white' : 'text-[#9ca3af]'}`}
+              className={`px-3 py-1 h-8 transition-all duration-200 ${view === 'editor' ? 'bg-[#374151] text-white shadow-inner' : 'text-[#9ca3af] hover:text-white'}`}
               onClick={() => setView('editor')}
             >
               <Code size={14} className="mr-1" />
@@ -69,7 +69,7 @@ export const AppHeader: React.FC = () => {
             </Button>
             <Button
               variant="ghost"
-              className={`px-3 py-1 h-8 ${view === 'preview' ? 'bg-[#374151] text-white' : 'text-[#9ca3af]'}`}
+              className={`px-3 py-1 h-8 transition-all duration-200 ${view === 'preview' ? 'bg-[#374151] text-white shadow-inner' : 'text-[#9ca3af] hover:text-white'}`}
               onClick={() => setView('preview')}
             >
               <Monitor size={14} className="mr-1" />
@@ -100,7 +100,7 @@ export const AppHeader: React.FC = () => {
           <Button 
             variant="ghost" 
             onClick={() => setShowAiAssistant(!showAiAssistant)}
-            className="text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] md:flex items-center gap-1 hidden"
+            className={`text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] md:flex items-center gap-1 ${showAiAssistant ? 'bg-[#242a38] text-[#6366f1]' : ''}`}
           >
             <Code size={16} />
             <span className="hidden lg:inline">AI</span>
@@ -116,7 +116,7 @@ export const AppHeader: React.FC = () => {
           <Button 
             variant="ghost" 
             onClick={resetToDefaults}
-            className="text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] flex items-center gap-1"
+            className="text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] flex items-center gap-1 transition-all duration-200 hover:rotate-180"
           >
             <RefreshCw size={16} />
             <span className="hidden md:inline">Reset</span>
@@ -125,7 +125,7 @@ export const AppHeader: React.FC = () => {
           <Button 
             variant="ghost" 
             onClick={clearAll}
-            className="text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] flex items-center gap-1"
+            className="text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] flex items-center gap-1 transition-colors"
           >
             <Trash2 size={16} />
             <span className="hidden md:inline">Clear</span>
@@ -134,7 +134,7 @@ export const AppHeader: React.FC = () => {
           <Button 
             variant="ghost" 
             onClick={toggleFullscreen}
-            className="text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38]"
+            className="text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] transition-transform hover:scale-110"
           >
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
           </Button>
