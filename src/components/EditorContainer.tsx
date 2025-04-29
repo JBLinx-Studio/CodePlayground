@@ -93,7 +93,7 @@ export const EditorContainer: React.FC = () => {
       {(view === 'split' || view === 'preview') && (
         <div 
           className="flex-1"
-          style={{ display: view !== 'editor' ? 'flex' : 'none' }}
+          style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
         >
           <PreviewPanel 
             html={files['index.html']?.content || ''} 

@@ -6,6 +6,7 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AppHeader } from "@/components/AppHeader";
 import { MobileControls } from "@/components/MobileControls";
 import { EditorContainer } from "@/components/EditorContainer";
+import { Toaster } from "sonner";
 
 const Index = () => {
   return (
@@ -21,6 +22,7 @@ const Index = () => {
             <footer className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922] border-t border-[#2e3646]">
               CodePlayground © {new Date().getFullYear()} - Build amazing web experiences
             </footer>
+            <Toaster position="top-right" richColors />
           </div>
         </LayoutProvider>
       </FileSystemProvider>
