@@ -15,7 +15,7 @@ const Index = () => {
       <FileSystemProvider>
         <LayoutProvider>
           <motion.div 
-            className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-[#151922] to-[#1a1f2c] text-[#e4e5e7]"
+            className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-[#0f111a] to-[#1a1f2c] text-[#e4e5e7]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -26,16 +26,24 @@ const Index = () => {
               <EditorContainer />
             </div>
             <motion.footer 
-              className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922] border-t border-[#2e3646] flex items-center justify-center gap-2"
+              className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922]/70 backdrop-blur-sm border-t border-[#2e3646] flex items-center justify-center gap-2"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
             >
               <span>CodePlayground © {new Date().getFullYear()}</span>
               <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
-              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent">Build amazing web experiences</span>
+              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build amazing web experiences</span>
             </motion.footer>
-            <Toaster position="top-right" richColors closeButton />
+            <Toaster 
+              position="top-right" 
+              richColors 
+              closeButton 
+              theme="dark"
+              toastOptions={{
+                className: "backdrop-blur-md bg-[#1a1f2c]/70 border border-[#374151]/50",
+              }}
+            />
           </motion.div>
         </LayoutProvider>
       </FileSystemProvider>

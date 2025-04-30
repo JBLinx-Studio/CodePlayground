@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -7,6 +8,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
+import { GripVertical } from "lucide-react";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,7 +75,7 @@ export const EditorContainer: React.FC = () => {
 
   return (
     <div 
-      className="flex flex-1 overflow-hidden bg-[#1a1f2c] rounded-lg shadow-xl border border-[#2e3646]/30" 
+      className="flex flex-1 overflow-hidden bg-gradient-to-br from-[#151922] to-[#1a1f2c] rounded-xl shadow-2xl border border-[#2e3646]/30" 
       ref={containerRef}
     >
       {/* File Explorer */}
@@ -83,8 +85,8 @@ export const EditorContainer: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-            className="w-64 h-full flex-shrink-0 border-r border-[#2e3646]"
+            transition={{ duration: 0.3 }}
+            className="w-64 h-full flex-shrink-0 border-r border-[#2e3646] bg-[#141821]/70 backdrop-blur-sm"
             style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
           >
             <FileExplorer 
@@ -128,11 +130,16 @@ export const EditorContainer: React.FC = () => {
       {/* Resize Handle */}
       {!isMobile && view === 'split' && (
         <motion.div 
-          className="w-2 bg-[#374151] hover:bg-[#6366f1] cursor-col-resize transition-colors relative"
+          className="w-2 bg-[#2e3646] hover:bg-[#6366f1] cursor-col-resize transition-colors relative group flex items-center justify-center"
           onMouseDown={startResize}
           whileHover={{ scale: 1.2 }}
         >
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-1 bg-[#6366f1] rounded-full opacity-60"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <GripVertical 
+              size={16} 
+              className="text-[#6366f1] opacity-0 group-hover:opacity-100 transition-opacity" 
+            />
+          </div>
         </motion.div>
       )}
 
@@ -141,7 +148,7 @@ export const EditorContainer: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex-1"
+          className="flex-1 bg-[#0f111a]"
           style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
           transition={{ duration: 0.3 }}
         >
@@ -160,7 +167,7 @@ export const EditorContainer: React.FC = () => {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.3 }}
             className="absolute right-0 top-0 bottom-0 z-50 lg:relative"
           >
             <AIAssistant 
