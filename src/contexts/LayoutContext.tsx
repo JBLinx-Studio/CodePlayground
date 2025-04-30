@@ -1,6 +1,5 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { toast } from "sonner";
 
 interface LayoutContextProps {
   view: 'split' | 'editor' | 'preview';
@@ -15,7 +14,6 @@ interface LayoutContextProps {
   isMobile: boolean;
   showAiAssistant: boolean;
   setShowAiAssistant: (show: boolean) => void;
-  lastViewBeforePreview: 'split' | 'editor' | null;
 }
 
 const LayoutContext = createContext<LayoutContextProps | undefined>(undefined);
@@ -27,34 +25,10 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [lastViewBeforePreview, setLastViewBeforePreview] = useState<'split' | 'editor' | null>(null);
 
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
-
-  // Store last view before switching to preview
-  const handleSetView = (newView: 'split' | 'editor' | 'preview') => {
-    // If switching to preview, store current view
-    if (newView === 'preview' && view !== 'preview') {
-      setLastViewBeforePreview(view);
-    }
-    
-    // If switching from preview back, and we have a stored view, use it
-    if (view === 'preview' && newView !== 'preview' && lastViewBeforePreview && !isMobile) {
-      setView(lastViewBeforePreview);
-      setLastViewBeforePreview(null);
-      return;
-    }
-
-    // On mobile, don't allow split view
-    if (isMobile && newView === 'split') {
-      setView('editor');
-      toast.info("Split view is not available on mobile");
-    } else {
-      setView(newView);
-    }
-  };
 
   // Handle resize events
   useEffect(() => {
@@ -92,14 +66,11 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
-      const wasMobile = isMobile;
-      
       setIsMobile(mobile);
       
       // Switch to appropriate view on mobile
-      if (mobile && !wasMobile && view === 'split') {
+      if (mobile && view === 'split') {
         setView('editor');
-        toast.info("Switched to editor view for mobile");
       }
       
       // Update body class for responsive styles
@@ -116,15 +87,12 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [view, isMobile]);
+  }, [view]);
 
   // Gracefully handle fullscreen changes
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
-      if (document.fullscreenElement) {
-        toast.info("Entered fullscreen mode");
-      }
     };
     
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -159,6 +127,16 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     containerRef.current = ref;
   };
 
+  // Custom view setter that handles mobile constraints
+  const handleSetView = (newView: 'split' | 'editor' | 'preview') => {
+    // On mobile, don't allow split view
+    if (isMobile && newView === 'split') {
+      setView('editor');
+    } else {
+      setView(newView);
+    }
+  };
+
   return (
     <LayoutContext.Provider
       value={{
@@ -174,7 +152,6 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isMobile,
         showAiAssistant,
         setShowAiAssistant,
-        lastViewBeforePreview,
       }}
     >
       {React.cloneElement(children as React.ReactElement, { ref: setContainerRef })}

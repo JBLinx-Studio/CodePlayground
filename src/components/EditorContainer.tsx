@@ -6,9 +6,7 @@ import { FileExplorer } from "@/components/FileExplorer";
 import { AIAssistant } from "@/components/AiAssistant";
 import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { AnimatePresence, motion } from 'framer-motion';
-import { toast } from "sonner";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,8 +19,6 @@ export const EditorContainer: React.FC = () => {
     showAiAssistant,
     setShowAiAssistant
   } = useLayout();
-  
-  const { theme } = useTheme();
   
   const {
     files,
@@ -45,16 +41,12 @@ export const EditorContainer: React.FC = () => {
 
   const insertCodeFromAI = (code: string) => {
     handleFileChange(files[currentFile].content + '\n' + code);
-    toast.success("Code inserted successfully");
   };
 
   return (
-    <motion.div 
-      className={`flex flex-1 overflow-hidden rounded-lg shadow-xl border ${theme === 'dark' ? 'bg-[#1a1f2c] border-[#2e3646]/30' : 'bg-white border-gray-200/30'}`}
+    <div 
+      className="flex flex-1 overflow-hidden bg-[#1a1f2c] rounded-lg shadow-xl border border-[#2e3646]/30" 
       ref={containerRef}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
     >
       {/* File Explorer */}
       <AnimatePresence>
@@ -64,7 +56,7 @@ export const EditorContainer: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className={`w-64 h-full flex-shrink-0 border-r ${theme === 'dark' ? 'border-[#2e3646]' : 'border-gray-200'}`}
+            className="w-64 h-full flex-shrink-0 border-r border-[#2e3646]"
             style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
           >
             <FileExplorer 
@@ -99,7 +91,7 @@ export const EditorContainer: React.FC = () => {
       {/* Resize Handle */}
       {!isMobile && view === 'split' && (
         <div 
-          className={`w-2 ${theme === 'dark' ? 'bg-[#374151] hover:bg-[#6366f1]' : 'bg-gray-200 hover:bg-blue-400'} cursor-col-resize transition-colors relative`}
+          className="w-2 bg-[#374151] hover:bg-[#6366f1] cursor-col-resize transition-colors relative"
           onMouseDown={startResize}
         >
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-1 bg-[#6366f1] rounded-full opacity-60"></div>
@@ -112,7 +104,7 @@ export const EditorContainer: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="flex-1"
-          style={{ display: view === 'preview' || view === 'split' ? 'flex' : 'none' }}
+          style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
           transition={{ duration: 0.3 }}
         >
           <PreviewPanel 
@@ -131,7 +123,7 @@ export const EditorContainer: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 top-0 bottom-0 z-50 lg:relative lg:w-80"
+            className="absolute right-0 top-0 bottom-0 z-50 lg:relative"
           >
             <AIAssistant 
               visible={showAiAssistant}
@@ -141,6 +133,6 @@ export const EditorContainer: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
