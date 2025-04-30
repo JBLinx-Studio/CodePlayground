@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -14,6 +13,7 @@ export const EditorContainer: React.FC = () => {
   
   const {
     view,
+    setView,
     panelWidth,
     isMobile,
     startResize,
@@ -44,9 +44,11 @@ export const EditorContainer: React.FC = () => {
       // Ctrl/Cmd + P to toggle preview
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         e.preventDefault();
-        if (view === 'editor') {
-          view !== 'split' && !isMobile && setView('split');
+        // If in editor view and not mobile, switch to split view
+        if (view === 'editor' && !isMobile) {
+          setView('split');
         } else {
+          // Otherwise switch to editor view
           setView('editor');
         }
       }
@@ -54,7 +56,7 @@ export const EditorContainer: React.FC = () => {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [view, isMobile]);
+  }, [view, isMobile, setView]);
 
   // Helper functions for conditional rendering
   const shouldShowFileExplorer = () => {
