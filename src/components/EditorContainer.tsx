@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
 import { FileExplorer } from "@/components/FileExplorer";
@@ -7,6 +7,7 @@ import { AIAssistant } from "@/components/AiAssistant";
 import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from "sonner";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,6 +32,30 @@ export const EditorContainer: React.FC = () => {
     getTagColorForFile
   } = useFileSystem();
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + S to save
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        toast.success("Changes saved");
+      }
+      
+      // Ctrl/Cmd + P to toggle preview
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        if (view === 'editor') {
+          view !== 'split' && !isMobile && setView('split');
+        } else {
+          setView('editor');
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [view, isMobile]);
+
   // Helper functions for conditional rendering
   const shouldShowFileExplorer = () => {
     if (isMobile) {
@@ -41,6 +66,7 @@ export const EditorContainer: React.FC = () => {
 
   const insertCodeFromAI = (code: string) => {
     handleFileChange(files[currentFile].content + '\n' + code);
+    toast.success("Code inserted successfully");
   };
 
   return (
@@ -62,21 +88,30 @@ export const EditorContainer: React.FC = () => {
             <FileExplorer 
               files={files}
               currentFile={currentFile}
-              onSelectFile={handleFileSelect}
+              onSelectFile={(file) => {
+                handleFileSelect(file);
+                isMobile && toast.info(`Editing ${file}`);
+              }}
               onAddFile={handleAddFile}
-              onDeleteFile={handleDeleteFile}
+              onDeleteFile={(file) => {
+                handleDeleteFile(file);
+                toast.success("File deleted");
+              }}
             />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Editors Panel */}
-      <div 
-        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''} transition-all duration-200 ease-in-out`}
+      <motion.div 
+        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''}`}
         style={{ 
           width: isMobile ? '100%' : `${panelWidth}%`,
           display: view === 'preview' && isMobile ? 'none' : undefined 
         }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
       >
         <CodeEditor 
           language={getCurrentFileType()}
@@ -86,16 +121,17 @@ export const EditorContainer: React.FC = () => {
           tagColor={getTagColorForFile().color}
           tagBgColor={getTagColorForFile().bgColor}
         />
-      </div>
+      </motion.div>
 
       {/* Resize Handle */}
       {!isMobile && view === 'split' && (
-        <div 
+        <motion.div 
           className="w-2 bg-[#374151] hover:bg-[#6366f1] cursor-col-resize transition-colors relative"
           onMouseDown={startResize}
+          whileHover={{ scale: 1.2 }}
         >
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-8 w-1 bg-[#6366f1] rounded-full opacity-60"></div>
-        </div>
+        </motion.div>
       )}
 
       {/* Preview Panel */}

@@ -1,5 +1,5 @@
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { FileSystemProvider } from "@/contexts/FileSystemContext";
 import { LayoutProvider } from "@/contexts/LayoutContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -7,25 +7,36 @@ import { AppHeader } from "@/components/AppHeader";
 import { MobileControls } from "@/components/MobileControls";
 import { EditorContainer } from "@/components/EditorContainer";
 import { Toaster } from "sonner";
+import { motion } from "framer-motion";
 
 const Index = () => {
   return (
     <SettingsProvider>
       <FileSystemProvider>
         <LayoutProvider>
-          <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-[#151922] to-[#1a1f2c] text-[#e4e5e7]">
+          <motion.div 
+            className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-[#151922] to-[#1a1f2c] text-[#e4e5e7]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <AppHeader />
             <MobileControls />
             <div className="flex-1 p-2 md:p-4 overflow-hidden">
               <EditorContainer />
             </div>
-            <footer className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922] border-t border-[#2e3646] flex items-center justify-center gap-2">
+            <motion.footer 
+              className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922] border-t border-[#2e3646] flex items-center justify-center gap-2"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+            >
               <span>CodePlayground © {new Date().getFullYear()}</span>
               <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
               <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent">Build amazing web experiences</span>
-            </footer>
+            </motion.footer>
             <Toaster position="top-right" richColors closeButton />
-          </div>
+          </motion.div>
         </LayoutProvider>
       </FileSystemProvider>
     </SettingsProvider>

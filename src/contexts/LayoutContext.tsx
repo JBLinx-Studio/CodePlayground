@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { toast } from "sonner";
 
 interface LayoutContextProps {
   view: 'split' | 'editor' | 'preview';
@@ -29,6 +30,34 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  
+  // Save user preferences to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('codePlayground_view', view);
+      localStorage.setItem('codePlayground_panelWidth', panelWidth.toString());
+    } catch (e) {
+      console.error("Could not save layout preferences:", e);
+    }
+  }, [view, panelWidth]);
+
+  // Load user preferences from localStorage
+  useEffect(() => {
+    try {
+      const savedView = localStorage.getItem('codePlayground_view') as 'split' | 'editor' | 'preview' | null;
+      const savedWidth = localStorage.getItem('codePlayground_panelWidth');
+      
+      if (savedView && ['split', 'editor', 'preview'].includes(savedView)) {
+        setView(savedView);
+      }
+      
+      if (savedWidth) {
+        setPanelWidth(Number(savedWidth));
+      }
+    } catch (e) {
+      console.error("Could not load layout preferences:", e);
+    }
+  }, []);
 
   // Handle resize events
   useEffect(() => {
@@ -89,6 +118,40 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
   }, [view]);
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Alt+1: Editor view
+      if (e.altKey && e.key === '1') {
+        setView('editor');
+        toast.info("Editor view");
+      }
+      // Alt+2: Split view
+      else if (e.altKey && e.key === '2' && !isMobile) {
+        setView('split');
+        toast.info("Split view");
+      }
+      // Alt+3: Preview view
+      else if (e.altKey && e.key === '3') {
+        setView('preview');
+        toast.info("Preview view");
+      }
+      // Alt+A: Toggle AI Assistant
+      else if (e.altKey && e.key === 'a') {
+        setShowAiAssistant(!showAiAssistant);
+        toast.info(showAiAssistant ? "AI Assistant closed" : "AI Assistant opened");
+      }
+      // F11: Toggle fullscreen
+      else if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [view, showAiAssistant, isMobile]);
+
   // Gracefully handle fullscreen changes
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -113,11 +176,17 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen()
-        .then(() => setIsFullscreen(false))
+        .then(() => {
+          setIsFullscreen(false);
+          toast.info("Exited fullscreen");
+        })
         .catch(err => console.error('Error exiting fullscreen:', err));
     } else {
       document.documentElement.requestFullscreen()
-        .then(() => setIsFullscreen(true))
+        .then(() => {
+          setIsFullscreen(true);
+          toast.info("Entered fullscreen");
+        })
         .catch(err => console.error('Error entering fullscreen:', err));
     }
   };
@@ -132,6 +201,7 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // On mobile, don't allow split view
     if (isMobile && newView === 'split') {
       setView('editor');
+      toast.info("Split view not available on mobile. Switched to editor view.");
     } else {
       setView(newView);
     }

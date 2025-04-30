@@ -6,6 +6,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { useSettings } from "@/contexts/SettingsContext";
+import { motion } from "framer-motion";
 
 interface CodeEditorProps {
   language: string;
@@ -50,7 +51,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         break;
     }
 
-    // Create editor
+    // Create editor with enhanced theme
     const state = EditorState.create({
       doc: value,
       extensions: [
@@ -66,25 +67,40 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             backgroundColor: settings.theme === 'dark' ? "#151922" : "#f8f9fa",
             color: settings.theme === 'dark' ? "#e4e5e7" : "#212529",
             height: "100%",
+            fontFamily: '"JetBrains Mono", "Fira Code", "Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace',
           },
           ".cm-content": {
-            fontFamily: '"Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace',
+            fontFamily: '"JetBrains Mono", "Fira Code", "Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace',
             fontSize: settings.fontSize,
+            padding: "10px 0",
           },
           ".cm-gutters": {
             backgroundColor: settings.theme === 'dark' ? "#1c2333" : "#e9ecef",
             color: settings.theme === 'dark' ? "#9ca3af" : "#6c757d",
             border: "none",
+            borderRight: settings.theme === 'dark' ? "1px solid #2e3646" : "1px solid #dee2e6",
           },
           ".cm-activeLine": { 
             backgroundColor: settings.theme === 'dark' ? "rgba(55, 65, 81, 0.3)" : "rgba(230, 235, 244, 0.5)"
           },
           ".cm-activeLineGutter": {
-            backgroundColor: settings.theme === 'dark' ? "#242a38" : "#dee2e6" 
+            backgroundColor: settings.theme === 'dark' ? "#242a38" : "#dee2e6",
+            color: settings.theme === 'dark' ? "#6366f1" : "#6366f1",
+            fontWeight: "bold",
           },
           ".cm-selectionMatch": { 
             backgroundColor: settings.theme === 'dark' ? "rgba(99, 102, 241, 0.2)" : "rgba(59, 130, 246, 0.2)" 
           },
+          ".cm-matchingBracket": {
+            backgroundColor: settings.theme === 'dark' ? "rgba(99, 102, 241, 0.3)" : "rgba(59, 130, 246, 0.3)",
+            border: "1px solid rgba(99, 102, 241, 0.5)",
+          },
+          ".cm-cursor": {
+            borderLeft: settings.theme === 'dark' ? "2px solid #a855f7" : "2px solid #8b5cf6",
+          },
+          ".cm-line": {
+            padding: "0 10px",
+          }
         }),
       ],
     });
@@ -118,11 +134,16 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   }, [value]);
 
   return (
-    <div className="flex-1 min-h-[100px] flex flex-col border-b border-[#374151] last:border-b-0">
+    <motion.div 
+      className="flex-1 min-h-[100px] flex flex-col border-b border-[#374151] last:border-b-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="bg-[#1c2333] px-4 py-2 flex justify-between items-center">
         <span className="text-sm font-medium">{displayName}</span>
         <span
-          className="text-xs px-2 py-1 rounded-md"
+          className="text-xs px-2 py-1 rounded-md transition-all duration-300 hover:opacity-80"
           style={{ backgroundColor: tagBgColor, color: tagColor }}
         >
           {language}
@@ -131,6 +152,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       <div className="flex-1 overflow-auto bg-[#151922] relative">
         <div ref={editorRef} className="absolute inset-0" />
       </div>
-    </div>
+    </motion.div>
   );
 };
