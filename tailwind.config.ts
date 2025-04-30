@@ -119,6 +119,18 @@ export default {
 				'glow': {
 					'0%, 100%': { boxShadow: '0 0 5px rgba(99, 102, 241, 0.5)' },
 					'50%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.8)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
+				},
+				'rotate-slow': {
+					'0%': { transform: 'rotate(0deg)' },
+					'100%': { transform: 'rotate(360deg)' }
+				},
+				'shimmer': {
+					'0%': { backgroundPosition: '-1000px 0' },
+					'100%': { backgroundPosition: '1000px 0' }
 				}
 			},
 			animation: {
@@ -129,10 +141,28 @@ export default {
 				'fade-in-left': 'fade-in-left 0.3s ease-out',
 				'pulse-gentle': 'pulse-gentle 2s ease-in-out infinite',
 				'slide-in': 'slide-in 0.3s ease-out',
-				'glow': 'glow 2s ease-in-out infinite'
+				'glow': 'glow 2s ease-in-out infinite',
+				'float': 'float 3s ease-in-out infinite',
+				'rotate-slow': 'rotate-slow 8s linear infinite',
+				'shimmer': 'shimmer 2s infinite linear'
 			},
 			backdropBlur: {
 				xs: '2px'
+			},
+			fontFamily: {
+				'mono': ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
+				'sans': ['"Inter"', 'system-ui', 'sans-serif'],
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+				'shimmer': 'linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent)',
+			},
+			boxShadow: {
+				'glow-sm': '0 0 10px rgba(99, 102, 241, 0.3)',
+				'glow-md': '0 0 20px rgba(99, 102, 241, 0.4)',
+				'glow-lg': '0 0 30px rgba(99, 102, 241, 0.5)',
+				'inner-glow': 'inset 0 0 15px rgba(99, 102, 241, 0.3)',
 			}
 		}
 	},
