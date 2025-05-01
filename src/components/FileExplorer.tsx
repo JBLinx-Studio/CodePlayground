@@ -3,8 +3,6 @@ import { Folder, File, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FileType } from "@/types/file";
-import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 interface FileExplorerProps {
   files: Record<string, FileType>;
@@ -29,26 +27,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const [showJs, setShowJs] = useState(true);
   const [showOther, setShowOther] = useState(true);
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-  
-  const item = {
-    hidden: { opacity: 0, x: -10 },
-    show: { opacity: 1, x: 0 }
-  };
-
   const handleAddFile = () => {
-    if (!newFileName) {
-      toast.error("Please enter a file name");
-      return;
-    }
+    if (!newFileName) return;
     
     let finalFileName = newFileName;
     if (!finalFileName.includes('.')) {
@@ -68,11 +48,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
   const handleDeleteFile = (fileName: string) => {
     if (fileName === 'index.html' || fileName === 'styles.css' || fileName === 'script.js') {
-      toast.error("Cannot delete default files");
+      alert("Cannot delete default files");
       return;
     }
     
-    if (window.confirm(`Are you sure you want to delete ${fileName}?`)) {
+    if (confirm(`Are you sure you want to delete ${fileName}?`)) {
       onDeleteFile(fileName);
     }
   };
@@ -85,12 +65,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
   return (
     <div className="bg-[#151922] border-r border-[#374151] h-full flex flex-col">
-      <motion.div 
-        className="p-4 flex items-center justify-between border-b border-[#374151]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
+      <div className="p-4 flex items-center justify-between border-b border-[#374151]">
         <h2 className="text-[#e4e5e7] font-medium text-sm">Files</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -140,32 +115,25 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             </div>
           </DialogContent>
         </Dialog>
-      </motion.div>
+      </div>
 
-      <motion.div 
-        className="overflow-y-auto flex-1"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
+      <div className="overflow-y-auto flex-1">
         {/* HTML Files */}
         <div className="px-2 py-3 border-b border-[#374151]">
-          <motion.div 
+          <div 
             className="flex items-center px-2 py-1 cursor-pointer hover:bg-[#242a38] rounded"
             onClick={() => setShowHtml(!showHtml)}
-            variants={item}
           >
             {showHtml ? <ChevronDown size={16} className="mr-1 text-[#9ca3af]" /> : <ChevronUp size={16} className="mr-1 text-[#9ca3af]" />}
             <Folder size={16} className="mr-2 text-[#3b82f6]" />
             <span className="text-sm text-[#e4e5e7]">HTML</span>
-          </motion.div>
+          </div>
           {showHtml && (
             <div className="ml-4 mt-1 space-y-1">
               {htmlFiles.map((fileName) => (
-                <motion.div 
+                <div 
                   key={fileName}
                   className={`flex items-center justify-between px-2 py-1 rounded ${currentFile === fileName ? 'bg-[#374151] text-white' : 'hover:bg-[#242a38] text-[#9ca3af]'}`}
-                  variants={item}
                 >
                   <div 
                     className="flex items-center flex-1 cursor-pointer"
@@ -182,7 +150,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   >
                     <Trash2 size={14} className="text-[#9ca3af]" />
                   </Button>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
@@ -190,22 +158,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
         {/* CSS Files */}
         <div className="px-2 py-3 border-b border-[#374151]">
-          <motion.div 
+          <div 
             className="flex items-center px-2 py-1 cursor-pointer hover:bg-[#242a38] rounded"
             onClick={() => setShowCss(!showCss)}
-            variants={item}
           >
             {showCss ? <ChevronDown size={16} className="mr-1 text-[#9ca3af]" /> : <ChevronUp size={16} className="mr-1 text-[#9ca3af]" />}
             <Folder size={16} className="mr-2 text-[#ef4444]" />
             <span className="text-sm text-[#e4e5e7]">CSS</span>
-          </motion.div>
+          </div>
           {showCss && (
             <div className="ml-4 mt-1 space-y-1">
               {cssFiles.map((fileName) => (
-                <motion.div 
+                <div 
                   key={fileName}
                   className={`flex items-center justify-between px-2 py-1 rounded ${currentFile === fileName ? 'bg-[#374151] text-white' : 'hover:bg-[#242a38] text-[#9ca3af]'}`}
-                  variants={item}
                 >
                   <div 
                     className="flex items-center flex-1 cursor-pointer"
@@ -222,7 +188,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   >
                     <Trash2 size={14} className="text-[#9ca3af]" />
                   </Button>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
@@ -230,22 +196,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
         {/* JS Files */}
         <div className="px-2 py-3 border-b border-[#374151]">
-          <motion.div 
+          <div 
             className="flex items-center px-2 py-1 cursor-pointer hover:bg-[#242a38] rounded"
             onClick={() => setShowJs(!showJs)}
-            variants={item}
           >
             {showJs ? <ChevronDown size={16} className="mr-1 text-[#9ca3af]" /> : <ChevronUp size={16} className="mr-1 text-[#9ca3af]" />}
             <Folder size={16} className="mr-2 text-[#f59e0b]" />
             <span className="text-sm text-[#e4e5e7]">JavaScript</span>
-          </motion.div>
+          </div>
           {showJs && (
             <div className="ml-4 mt-1 space-y-1">
               {jsFiles.map((fileName) => (
-                <motion.div 
+                <div 
                   key={fileName}
                   className={`flex items-center justify-between px-2 py-1 rounded ${currentFile === fileName ? 'bg-[#374151] text-white' : 'hover:bg-[#242a38] text-[#9ca3af]'}`}
-                  variants={item}
                 >
                   <div 
                     className="flex items-center flex-1 cursor-pointer"
@@ -262,7 +226,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   >
                     <Trash2 size={14} className="text-[#9ca3af]" />
                   </Button>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
@@ -271,22 +235,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         {/* Other Files */}
         {otherFiles.length > 0 && (
           <div className="px-2 py-3 border-b border-[#374151]">
-            <motion.div 
+            <div 
               className="flex items-center px-2 py-1 cursor-pointer hover:bg-[#242a38] rounded"
               onClick={() => setShowOther(!showOther)}
-              variants={item}
             >
               {showOther ? <ChevronDown size={16} className="mr-1 text-[#9ca3af]" /> : <ChevronUp size={16} className="mr-1 text-[#9ca3af]" />}
               <Folder size={16} className="mr-2 text-[#9ca3af]" />
               <span className="text-sm text-[#e4e5e7]">Other</span>
-            </motion.div>
+            </div>
             {showOther && (
               <div className="ml-4 mt-1 space-y-1">
                 {otherFiles.map((fileName) => (
-                  <motion.div 
+                  <div 
                     key={fileName}
                     className={`flex items-center justify-between px-2 py-1 rounded ${currentFile === fileName ? 'bg-[#374151] text-white' : 'hover:bg-[#242a38] text-[#9ca3af]'}`}
-                    variants={item}
                   >
                     <div 
                       className="flex items-center flex-1 cursor-pointer"
@@ -303,13 +265,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     >
                       <Trash2 size={14} className="text-[#9ca3af]" />
                     </Button>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };

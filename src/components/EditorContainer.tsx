@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
+
+import React, { useRef, useEffect } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
 import { FileExplorer } from "@/components/FileExplorer";
@@ -7,12 +8,10 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { GripVertical, Save, PlayCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { GripVertical } from "lucide-react";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [showSaveIndicator, setShowSaveIndicator] = useState(false);
   
   const {
     view,
@@ -41,8 +40,6 @@ export const EditorContainer: React.FC = () => {
       // Ctrl/Cmd + S to save
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        setShowSaveIndicator(true);
-        setTimeout(() => setShowSaveIndicator(false), 1000);
         toast.success("Changes saved");
       }
       
@@ -52,11 +49,9 @@ export const EditorContainer: React.FC = () => {
         // If in editor view and not mobile, switch to split view
         if (view === 'editor' && !isMobile) {
           setView('split');
-        } else if (view === 'split') {
+        } else {
           // Otherwise switch to editor view
           setView('editor');
-        } else {
-          setView('preview');
         }
       }
     };
@@ -76,13 +71,6 @@ export const EditorContainer: React.FC = () => {
   const insertCodeFromAI = (code: string) => {
     handleFileChange(files[currentFile].content + '\n' + code);
     toast.success("Code inserted successfully");
-  };
-  
-  // Run the preview with animation effect
-  const runPreview = () => {
-    setShowSaveIndicator(true);
-    setTimeout(() => setShowSaveIndicator(false), 1000);
-    toast.success("Preview updated");
   };
 
   return (
@@ -120,7 +108,7 @@ export const EditorContainer: React.FC = () => {
 
       {/* Editors Panel */}
       <motion.div 
-        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''} relative`}
+        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''}`}
         style={{ 
           width: isMobile ? '100%' : `${panelWidth}%`,
           display: view === 'preview' && isMobile ? 'none' : undefined 
@@ -137,51 +125,6 @@ export const EditorContainer: React.FC = () => {
           tagColor={getTagColorForFile().color}
           tagBgColor={getTagColorForFile().bgColor}
         />
-        
-        {/* Controls */}
-        <motion.div 
-          className="absolute top-3 right-3 z-10 flex items-center space-x-2"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <AnimatePresence>
-            {showSaveIndicator && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-md border border-green-500/20"
-              >
-                Saved!
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="bg-[#1c2333]/80 border-[#2e3646] h-8 px-3 text-xs flex items-center gap-1 hover:bg-[#2e3646]/50"
-            onClick={runPreview}
-          >
-            <PlayCircle size={14} className="text-green-400" />
-            <span>Run</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="bg-[#1c2333]/80 border-[#2e3646] h-8 px-3 text-xs flex items-center gap-1 hover:bg-[#2e3646]/50"
-            onClick={() => {
-              setShowSaveIndicator(true);
-              setTimeout(() => setShowSaveIndicator(false), 1000);
-              toast.success("Changes saved");
-            }}
-          >
-            <Save size={14} className="text-blue-400" />
-            <span>Save</span>
-          </Button>
-        </motion.div>
       </motion.div>
 
       {/* Resize Handle */}
@@ -205,7 +148,7 @@ export const EditorContainer: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex-1 bg-[#0f111a] relative"
+          className="flex-1 bg-[#0f111a]"
           style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
           transition={{ duration: 0.3 }}
         >
@@ -214,23 +157,6 @@ export const EditorContainer: React.FC = () => {
             css={files['styles.css']?.content || ''} 
             js={files['script.js']?.content || ''}  
           />
-          
-          {view === 'preview' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.3 }}
-              className="absolute bottom-4 right-4"
-            >
-              <Button
-                variant="outline"
-                className="bg-black/30 backdrop-blur-sm border border-white/10 hover:bg-black/50 text-white"
-                onClick={() => setView('split')}
-              >
-                Show Editor
-              </Button>
-            </motion.div>
-          )}
         </motion.div>
       )}
 
