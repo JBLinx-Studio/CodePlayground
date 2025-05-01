@@ -1,5 +1,6 @@
 
-import { useRef, useEffect } from "react";
+import React from "react";
+import { motion } from "framer-motion";
 import { FileSystemProvider } from "@/contexts/FileSystemContext";
 import { LayoutProvider } from "@/contexts/LayoutContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -7,7 +8,6 @@ import { AppHeader } from "@/components/AppHeader";
 import { MobileControls } from "@/components/MobileControls";
 import { EditorContainer } from "@/components/EditorContainer";
 import { Toaster } from "sonner";
-import { motion } from "framer-motion";
 
 const Index = () => {
   return (
