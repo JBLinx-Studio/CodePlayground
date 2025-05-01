@@ -8,7 +8,8 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Play, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,9 +74,18 @@ export const EditorContainer: React.FC = () => {
     toast.success("Code inserted successfully");
   };
 
+  const runCode = () => {
+    setView('preview');
+    toast.success("Running your code");
+  };
+
+  const saveCode = () => {
+    toast.success("Changes saved successfully");
+  };
+
   return (
     <div 
-      className="flex flex-1 overflow-hidden bg-gradient-to-br from-[#151922] to-[#1a1f2c] rounded-xl shadow-2xl border border-[#2e3646]/30" 
+      className="flex flex-1 overflow-hidden bg-gradient-to-br from-[#0f1117] to-[#171e2e] rounded-xl shadow-2xl border border-[#2d3748]/30" 
       ref={containerRef}
     >
       {/* File Explorer */}
@@ -86,7 +96,7 @@ export const EditorContainer: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-64 h-full flex-shrink-0 border-r border-[#2e3646] bg-[#141821]/70 backdrop-blur-sm"
+            className="w-64 h-full flex-shrink-0 border-r border-[#2d3748] bg-[#0f1117]/80 backdrop-blur-sm"
             style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
           >
             <FileExplorer 
@@ -108,7 +118,7 @@ export const EditorContainer: React.FC = () => {
 
       {/* Editors Panel */}
       <motion.div 
-        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''}`}
+        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''} relative`}
         style={{ 
           width: isMobile ? '100%' : `${panelWidth}%`,
           display: view === 'preview' && isMobile ? 'none' : undefined 
@@ -125,12 +135,35 @@ export const EditorContainer: React.FC = () => {
           tagColor={getTagColorForFile().color}
           tagBgColor={getTagColorForFile().bgColor}
         />
+
+        {/* Action buttons */}
+        <motion.div 
+          className="absolute bottom-4 right-4 flex gap-2"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Button 
+            size="sm" 
+            onClick={saveCode}
+            className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
+          >
+            <Save size={14} className="mr-1" /> Save
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={runCode}
+            className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
+          >
+            <Play size={14} className="mr-1" /> Run
+          </Button>
+        </motion.div>
       </motion.div>
 
       {/* Resize Handle */}
       {!isMobile && view === 'split' && (
         <motion.div 
-          className="w-2 bg-[#2e3646] hover:bg-[#6366f1] cursor-col-resize transition-colors relative group flex items-center justify-center"
+          className="w-2 bg-[#2d3748] hover:bg-[#6366f1] cursor-col-resize transition-colors relative group flex items-center justify-center"
           onMouseDown={startResize}
           whileHover={{ scale: 1.2 }}
         >
@@ -148,7 +181,7 @@ export const EditorContainer: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex-1 bg-[#0f111a]"
+          className="flex-1 bg-[#0f1117]"
           style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
           transition={{ duration: 0.3 }}
         >

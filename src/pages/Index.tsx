@@ -15,7 +15,7 @@ const Index = () => {
       <FileSystemProvider>
         <LayoutProvider>
           <motion.div 
-            className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-[#0f111a] to-[#1a1f2c] text-[#e4e5e7]"
+            className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-[#0a0c13] via-[#111827] to-[#1f2937] text-[#f1f5f9]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -26,7 +26,7 @@ const Index = () => {
               <EditorContainer />
             </div>
             <motion.footer 
-              className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#151922]/70 backdrop-blur-sm border-t border-[#2e3646] flex items-center justify-center gap-2"
+              className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-[#111827]/70 backdrop-blur-sm border-t border-[#2d3748] flex items-center justify-center gap-2"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
@@ -41,7 +41,8 @@ const Index = () => {
               closeButton 
               theme="dark"
               toastOptions={{
-                className: "backdrop-blur-md bg-[#1a1f2c]/70 border border-[#374151]/50",
+                className: "backdrop-blur-md bg-[#1a1f2c]/70 border border-[#374151]/50 shadow-xl",
+                duration: 3000,
               }}
             />
           </motion.div>
