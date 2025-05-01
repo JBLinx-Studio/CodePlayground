@@ -1,7 +1,8 @@
 
 import React, { useEffect, useRef } from "react";
-import { EditorView, basicSetup } from "@codemirror/basic-setup";
+import { basicSetup } from "@codemirror/basic-setup";
 import { EditorState } from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
 import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
