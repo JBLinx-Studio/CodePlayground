@@ -22,7 +22,7 @@ const Index = () => {
           >
             <AppHeader />
             <MobileControls />
-            <div className="flex-1 p-1 md:p-3 overflow-hidden">
+            <div className="flex-1 p-2 md:p-3 overflow-hidden">
               <EditorContainer />
             </div>
             <motion.footer 

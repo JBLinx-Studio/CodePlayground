@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -7,13 +8,8 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { Play, Save } from "lucide-react";
+import { GripVertical, Play, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle
-} from "@/components/ui/resizable";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,7 +17,9 @@ export const EditorContainer: React.FC = () => {
   const {
     view,
     setView,
+    panelWidth,
     isMobile,
+    startResize,
     showAiAssistant,
     setShowAiAssistant
   } = useLayout();
@@ -94,166 +92,123 @@ export const EditorContainer: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <ResizablePanelGroup direction={isMobile ? "vertical" : "horizontal"} className="w-full">
-        {/* File Explorer Panel */}
-        <AnimatePresence>
-          {shouldShowFileExplorer() && (
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className={isMobile ? "w-full" : "w-64 h-full flex-shrink-0"}
-              style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
-            >
-              <FileExplorer 
-                files={files}
-                currentFile={currentFile}
-                onSelectFile={(file) => {
-                  handleFileSelect(file);
-                  isMobile && toast.info(`Editing ${file}`);
-                }}
-                onAddFile={handleAddFile}
-                onDeleteFile={(file) => {
-                  handleDeleteFile(file);
-                  toast.success("File deleted");
-                }}
-                onRenameFile={(oldName, newName) => {
-                  handleRenameFile(oldName, newName);
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Main Content Area with Resizable Panels */}
-        {!isMobile && view === 'split' ? (
-          <>
-            {/* Editor Panel */}
-            <ResizablePanel defaultSize={50} minSize={30} className="h-full">
-              <motion.div 
-                className="flex flex-col h-full relative"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-              >
-                <CodeEditor 
-                  language={getCurrentFileType()}
-                  displayName={currentFile}
-                  value={files[currentFile]?.content || ''}
-                  onChange={handleFileChange}
-                  tagColor={getTagColorForFile().color}
-                  tagBgColor={getTagColorForFile().bgColor}
-                />
-
-                {/* Action buttons */}
-                <motion.div 
-                  className="absolute bottom-4 right-4 flex gap-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Button 
-                    size="sm" 
-                    onClick={saveCode}
-                    className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
-                  >
-                    <Save size={14} className="mr-1" /> Save
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={runCode}
-                    className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
-                  >
-                    <Play size={14} className="mr-1" /> Run
-                  </Button>
-                </motion.div>
-              </motion.div>
-            </ResizablePanel>
-
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle className="bg-gradient-to-b from-[#2d3748]/80 to-[#374151]/80 hover:from-[#6366f1]/60 hover:to-[#8b5cf6]/60 transition-colors" />
-
-            {/* Preview Panel */}
-            <ResizablePanel defaultSize={50} minSize={30}>
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex-1 bg-gradient-to-b from-[#ffffff]/5 to-[#ffffff]/10 backdrop-blur-sm rounded-r-xl overflow-hidden h-full"
-                transition={{ duration: 0.3 }}
-              >
-                <PreviewPanel 
-                  html={files['index.html']?.content || ''} 
-                  css={files['styles.css']?.content || ''} 
-                  js={files['script.js']?.content || ''}  
-                />
-              </motion.div>
-            </ResizablePanel>
-          </>
-        ) : (
-          /* Non-Split View */
+      {/* File Explorer */}
+      <AnimatePresence>
+        {shouldShowFileExplorer() && (
           <motion.div 
-            className="flex flex-col w-full h-full"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
+            className="w-64 h-full flex-shrink-0 bg-gradient-to-b from-[#0c101a]/95 to-[#151d2e]/95"
+            style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
           >
-            {/* For mobile or single panel views */}
-            {view === 'editor' && (
-              <div className="flex-1 flex flex-col relative">
-                <CodeEditor 
-                  language={getCurrentFileType()}
-                  displayName={currentFile}
-                  value={files[currentFile]?.content || ''}
-                  onChange={handleFileChange}
-                  tagColor={getTagColorForFile().color}
-                  tagBgColor={getTagColorForFile().bgColor}
-                />
-                <motion.div 
-                  className="absolute bottom-4 right-4 flex gap-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <Button 
-                    size="sm" 
-                    onClick={saveCode}
-                    className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
-                  >
-                    <Save size={14} className="mr-1" /> Save
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={runCode}
-                    className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
-                  >
-                    <Play size={14} className="mr-1" /> Run
-                  </Button>
-                </motion.div>
-              </div>
-            )}
-
-            {view === 'preview' && (
-              <div className="flex-1 h-full">
-                <PreviewPanel 
-                  html={files['index.html']?.content || ''} 
-                  css={files['styles.css']?.content || ''} 
-                  js={files['script.js']?.content || ''}  
-                />
-              </div>
-            )}
+            <FileExplorer 
+              files={files}
+              currentFile={currentFile}
+              onSelectFile={(file) => {
+                handleFileSelect(file);
+                isMobile && toast.info(`Editing ${file}`);
+              }}
+              onAddFile={handleAddFile}
+              onDeleteFile={(file) => {
+                handleDeleteFile(file);
+                toast.success("File deleted");
+              }}
+              onRenameFile={(oldName, newName) => {
+                handleRenameFile(oldName, newName);
+              }}
+            />
           </motion.div>
         )}
-      </ResizablePanelGroup>
+      </AnimatePresence>
+
+      {/* Editors Panel */}
+      <motion.div 
+        className={`flex flex-col ${isMobile ? 'w-full h-[60%]' : ''} relative`}
+        style={{ 
+          width: isMobile ? '100%' : `${panelWidth}%`,
+          display: view === 'preview' && isMobile ? 'none' : undefined 
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <CodeEditor 
+          language={getCurrentFileType()}
+          displayName={currentFile}
+          value={files[currentFile]?.content || ''}
+          onChange={handleFileChange}
+          tagColor={getTagColorForFile().color}
+          tagBgColor={getTagColorForFile().bgColor}
+        />
+
+        {/* Action buttons */}
+        <motion.div 
+          className="absolute bottom-4 right-4 flex gap-2"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Button 
+            size="sm" 
+            onClick={saveCode}
+            className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
+          >
+            <Save size={14} className="mr-1" /> Save
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={runCode}
+            className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
+          >
+            <Play size={14} className="mr-1" /> Run
+          </Button>
+        </motion.div>
+      </motion.div>
+
+      {/* Resize Handle */}
+      {!isMobile && view === 'split' && (
+        <motion.div 
+          className="w-2 bg-gradient-to-b from-[#2d3748]/80 to-[#374151]/80 hover:from-[#6366f1]/60 hover:to-[#8b5cf6]/60 cursor-col-resize transition-colors relative group flex items-center justify-center"
+          onMouseDown={startResize}
+          whileHover={{ scale: 1.2 }}
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <GripVertical 
+              size={16} 
+              className="text-[#6366f1] opacity-0 group-hover:opacity-100 transition-opacity" 
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {/* Preview Panel */}
+      {(view === 'split' || view === 'preview') && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex-1 bg-gradient-to-b from-[#ffffff]/5 to-[#ffffff]/10 backdrop-blur-sm rounded-r-xl overflow-hidden"
+          style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
+          transition={{ duration: 0.3 }}
+        >
+          <PreviewPanel 
+            html={files['index.html']?.content || ''} 
+            css={files['styles.css']?.content || ''} 
+            js={files['script.js']?.content || ''}  
+          />
+        </motion.div>
+      )}
 
       {/* AI Assistant */}
       <AnimatePresence>
         {showAiAssistant && (
           <motion.div
-            initial={{ opacity: 0, x: -300 }}
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -300 }}
-            transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-[56px] bottom-0 z-50 lg:relative"
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.3 }}
+            className="absolute right-0 top-0 bottom-0 z-50 lg:relative"
           >
             <AIAssistant 
               visible={showAiAssistant}
