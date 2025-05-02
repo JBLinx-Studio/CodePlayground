@@ -12,6 +12,10 @@ interface FileSystemContextProps {
   getCurrentFileType: () => string;
   getTagColorForFile: () => { color: string; bgColor: string };
   handleRenameFile: (oldName: string, newName: string) => void;
+  resetToDefaults: () => void;
+  clearAll: () => void;
+  copyCode: () => void;
+  downloadCode: () => void;
 }
 
 // Default HTML content
@@ -314,6 +318,65 @@ document.addEventListener('DOMContentLoaded', init);`;
     }
   };
 
+  // Reset to default files
+  const resetToDefaults = () => {
+    const defaultFiles = {
+      'index.html': { content: defaultHtml, type: 'html' as const },
+      'styles.css': { content: defaultCss, type: 'css' as const },
+      'script.js': { content: defaultJs, type: 'js' as const }
+    };
+    
+    setFiles(defaultFiles);
+    setCurrentFile('index.html');
+    toast.success("Reset to default files");
+  };
+
+  // Clear all files except defaults
+  const clearAll = () => {
+    // Keep only default files
+    const newFiles = { ...files };
+    Object.keys(newFiles).forEach(fileName => {
+      if (!['index.html', 'styles.css', 'script.js'].includes(fileName)) {
+        delete newFiles[fileName];
+      }
+    });
+
+    setFiles(newFiles);
+    setCurrentFile('index.html');
+    toast.success("Cleared all custom files");
+  };
+
+  // Copy current file to clipboard
+  const copyCode = () => {
+    if (files[currentFile]) {
+      navigator.clipboard.writeText(files[currentFile].content)
+        .then(() => {
+          toast.success("Code copied to clipboard");
+        })
+        .catch(err => {
+          console.error('Failed to copy: ', err);
+          toast.error("Failed to copy code");
+        });
+    }
+  };
+
+  // Download all files as zip
+  const downloadCode = () => {
+    // Simple implementation to download current file
+    const fileName = currentFile;
+    const content = files[currentFile]?.content || '';
+    
+    const element = document.createElement('a');
+    const file = new Blob([content], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = fileName;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    
+    toast.success(`Downloaded ${fileName}`);
+  };
+
   return (
     <FileSystemContext.Provider
       value={{
@@ -325,7 +388,11 @@ document.addEventListener('DOMContentLoaded', init);`;
         handleFileChange,
         getCurrentFileType,
         getTagColorForFile,
-        handleRenameFile
+        handleRenameFile,
+        resetToDefaults,
+        clearAll,
+        copyCode,
+        downloadCode
       }}
     >
       {children}
