@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Code, SendHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface Message {
   id: number;
@@ -125,8 +126,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ visible, onClose, onIn
   if (!visible) return null;
 
   return (
-    <div className="fixed right-0 top-[56px] bottom-0 w-80 bg-[#1a1f2c] border-l border-[#374151] flex flex-col z-10">
-      <div className="flex items-center justify-between p-4 border-b border-[#374151]">
+    <motion.div 
+      className="fixed left-0 top-[56px] bottom-0 w-80 bg-[#1a1f2c] border-r border-[#374151] flex flex-col z-50 shadow-xl"
+      initial={{ x: -280 }}
+      animate={{ x: 0 }}
+      exit={{ x: -280 }}
+      transition={{ type: "spring", stiffness: 400, damping: 40 }}
+    >
+      <div className="flex items-center justify-between p-4 border-b border-[#374151] bg-gradient-to-r from-[#1c2333] to-[#151d2e]">
         <div className="flex items-center gap-2">
           <Code size={20} className="text-[#6366f1]" />
           <h3 className="font-medium text-sm">AI Assistant</h3>
@@ -135,13 +142,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ visible, onClose, onIn
           variant="ghost" 
           size="sm"
           onClick={onClose}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 hover:bg-[#374151]/50"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </Button>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[#1a1f2c] to-[#151922]">
         {messages.map((message) => (
           <div 
             key={message.id}
@@ -152,8 +159,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ visible, onClose, onIn
             <div 
               className={`max-w-[80%] rounded-lg p-3 ${
                 message.type === 'user' 
-                  ? 'bg-[#6366f1] text-white' 
-                  : 'bg-[#242a38] text-[#e4e5e7]'
+                  ? 'bg-[#6366f1] text-white shadow-md' 
+                  : 'bg-[#242a38] text-[#e4e5e7] shadow-md'
               }`}
             >
               <div 
@@ -172,7 +179,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ visible, onClose, onIn
         ))}
         {isLoading && (
           <div className="flex justify-start mb-4">
-            <div className="bg-[#242a38] text-[#e4e5e7] p-3 rounded-lg max-w-[80%]">
+            <div className="bg-[#242a38] text-[#e4e5e7] p-3 rounded-lg max-w-[80%] shadow-md">
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-[#6366f1] rounded-full mr-1 animate-pulse"></div>
                 <div className="w-2 h-2 bg-[#6366f1] rounded-full mr-1 animate-pulse delay-100"></div>
@@ -186,23 +193,23 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ visible, onClose, onIn
       
       <form 
         onSubmit={handleSubmit}
-        className="border-t border-[#374151] p-4 flex gap-2"
+        className="border-t border-[#374151] p-4 flex gap-2 bg-[#1c2333]"
       >
         <input
           type="text"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Ask for code help..."
-          className="flex-1 bg-[#242a38] border border-[#374151] rounded p-2 text-[#e4e5e7] text-sm focus:outline-none focus:border-[#6366f1]"
+          className="flex-1 bg-[#242a38] border border-[#374151] rounded p-2 text-[#e4e5e7] text-sm focus:outline-none focus:border-[#6366f1] shadow-inner"
         />
         <Button 
           type="submit"
-          className="bg-[#6366f1] text-white hover:bg-[#4f46e5] h-9 w-9 p-0"
+          className="bg-[#6366f1] text-white hover:bg-[#4f46e5] h-9 w-9 p-0 shadow-md"
           disabled={isLoading || !prompt.trim()}
         >
           <SendHorizontal size={16} />
         </Button>
       </form>
-    </div>
+    </motion.div>
   );
 };

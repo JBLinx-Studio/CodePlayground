@@ -57,6 +57,10 @@ body {
   .card {
     @apply rounded-lg overflow-hidden bg-gradient-to-br from-[#151922]/90 to-[#1e293b]/80 border border-[#374151]/50 shadow-lg;
   }
+
+  .resizable-handle {
+    @apply bg-gradient-to-b from-[#2d3748]/80 to-[#374151]/80 hover:from-[#6366f1]/60 hover:to-[#8b5cf6]/60 transition-colors;
+  }
 }
 
 /* Custom scrollbar */
@@ -76,4 +80,41 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
+}
+
+/* Make resizable handles nicer */
+[data-panel-group-direction="horizontal"] > [data-panel-resizer] {
+  width: 6px;
+  margin: 0 -3px;
+  cursor: col-resize;
+}
+
+[data-panel-group-direction="vertical"] > [data-panel-resizer] {
+  height: 6px;
+  margin: -3px 0;
+  cursor: row-resize;
+}
+
+/* Hover effect for resizable handles */
+[data-panel-resizer]:hover::after,
+[data-panel-resizer]:active::after {
+  background: #6366f1;
+}
+
+[data-panel-resizer]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  border-radius: 2px;
+  background: rgba(75, 85, 99, 0.7);
+  transition: background 0.2s;
+}
+
+[data-panel-group-direction="vertical"] > [data-panel-resizer]::after {
+  width: 40px;
+  height: 4px;
 }
