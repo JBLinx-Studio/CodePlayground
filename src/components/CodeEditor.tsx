@@ -65,8 +65,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         }),
         EditorView.theme({
           "&": {
-            backgroundColor: settings.theme === 'dark' ? "#030712" : "#f8fafc",
-            color: settings.theme === 'dark' ? "#f1f5f9" : "#1e293b",
+            backgroundColor: settings.theme === 'dark' ? "#0f1117" : "#f8f9fa",
+            color: settings.theme === 'dark' ? "#f8f9fa" : "#1e293b",
             height: "100%",
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
             fontSize: settings.fontSize,
@@ -74,48 +74,40 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           ".cm-content": {
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
             fontSize: settings.fontSize,
-            padding: "12px 0",
-            lineHeight: "1.6",
+            padding: "10px 0",
           },
           ".cm-gutters": {
-            backgroundColor: settings.theme === 'dark' ? "#0f172a" : "#f1f5f9",
-            color: settings.theme === 'dark' ? "#94a3b8" : "#64748b",
+            backgroundColor: settings.theme === 'dark' ? "#151922" : "#e9ecef",
+            color: settings.theme === 'dark' ? "#9ca3af" : "#6c757d",
             border: "none",
-            borderRight: settings.theme === 'dark' ? "1px solid #334155" : "1px solid #cbd5e1",
-            paddingRight: "8px",
+            borderRight: settings.theme === 'dark' ? "1px solid #2d3748" : "1px solid #e2e8f0",
           },
           ".cm-activeLine": { 
-            backgroundColor: settings.theme === 'dark' ? "rgba(51, 65, 85, 0.4)" : "rgba(241, 245, 249, 0.7)"
+            backgroundColor: settings.theme === 'dark' ? "rgba(45, 55, 72, 0.4)" : "rgba(225, 235, 245, 0.7)"
           },
           ".cm-activeLineGutter": {
-            backgroundColor: settings.theme === 'dark' ? "#1e293b" : "#e2e8f0",
-            color: settings.theme === 'dark' ? "#8b5cf6" : "#6366f1",
+            backgroundColor: settings.theme === 'dark' ? "#1a202c" : "#cbd5e1",
+            color: settings.theme === 'dark' ? "#7c3aed" : "#6366f1",
             fontWeight: "bold",
           },
           ".cm-selectionMatch": { 
-            backgroundColor: settings.theme === 'dark' ? "rgba(139, 92, 246, 0.2)" : "rgba(99, 102, 241, 0.2)" 
+            backgroundColor: settings.theme === 'dark' ? "rgba(124, 58, 237, 0.2)" : "rgba(99, 102, 241, 0.2)" 
           },
           ".cm-matchingBracket": {
-            backgroundColor: settings.theme === 'dark' ? "rgba(139, 92, 246, 0.3)" : "rgba(99, 102, 241, 0.3)",
-            borderBottom: "2px solid #8b5cf6",
+            backgroundColor: settings.theme === 'dark' ? "rgba(124, 58, 237, 0.3)" : "rgba(99, 102, 241, 0.3)",
+            borderBottom: "2px solid #7c3aed",
           },
           ".cm-cursor": {
-            borderLeft: settings.theme === 'dark' ? "2px solid #c4b5fd" : "2px solid #8b5cf6",
+            borderLeft: settings.theme === 'dark' ? "2px solid #a78bfa" : "2px solid #8b5cf6",
           },
           ".cm-line": {
-            padding: "0 12px",
+            padding: "0 10px",
           },
           ".cm-keyword": { color: settings.theme === 'dark' ? "#f472b6" : "#db2777" },
           ".cm-property": { color: settings.theme === 'dark' ? "#93c5fd" : "#3b82f6" },
-          ".cm-string": { color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6" },
-          ".cm-function": { color: settings.theme === 'dark' ? "#d8b4fe" : "#9333ea" },
-          ".cm-comment": { color: settings.theme === 'dark' ? "#64748b" : "#94a3b8" },
-          ".cm-variable": { color: settings.theme === 'dark' ? "#f1f5f9" : "#1e293b" },
-          ".cm-number": { color: settings.theme === 'dark' ? "#fb923c" : "#ea580c" },
-          ".cm-atom": { color: settings.theme === 'dark' ? "#fb7185" : "#e11d48" },
-          ".cm-meta": { color: settings.theme === 'dark' ? "#38bdf8" : "#0284c7" },
-          ".cm-tag": { color: settings.theme === 'dark' ? "#2dd4bf" : "#0d9488" },
-          ".cm-attribute": { color: settings.theme === 'dark' ? "#fdba74" : "#ea580c" },
+          ".cm-string": { color: settings.theme === 'dark' ? "#a5b4fc" : "#6366f1" },
+          ".cm-function": { color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6" },
+          ".cm-comment": { color: settings.theme === 'dark' ? "#6b7280" : "#9ca3af" }
         }),
       ],
     });
@@ -150,25 +142,25 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   return (
     <motion.div 
-      className="flex-1 min-h-[100px] flex flex-col border-b border-[#334155] dark:border-[#475569] last:border-b-0 overflow-hidden"
+      className="flex-1 min-h-[100px] flex flex-col border-b border-[#2d3748] dark:border-[#374151] last:border-b-0 overflow-hidden"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
-      <div className="bg-gradient-to-r from-[#0f172a] to-[#1e293b] dark:from-[#1e293b] dark:to-[#334155] px-4 py-2.5 flex justify-between items-center border-b border-[#334155]/50">
+      <div className="bg-gradient-to-r from-[#151922] to-[#1a1f2c] dark:from-[#1c2333] dark:to-[#1e293b] px-4 py-2 flex justify-between items-center border-b border-[#2d3748]/50">
         <span className="text-sm font-medium text-white flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#c084fc] shadow-[0_0_6px_#c084fc]"></span>
+          <span className="w-2 h-2 rounded-full bg-[#f472b6]"></span>
           {displayName}
         </span>
         <motion.span
-          className="text-xs px-2.5 py-1 rounded-md font-mono transition-all duration-300 shadow-sm"
+          className="text-xs px-2 py-1 rounded-md font-mono transition-all duration-300"
           style={{ backgroundColor: tagBgColor, color: tagColor }}
           whileHover={{ scale: 1.05 }}
         >
           {language}
         </motion.span>
       </div>
-      <div className="flex-1 overflow-hidden bg-[#030712] dark:bg-[#0f172a] relative">
+      <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative">
         <div ref={editorRef} className="absolute inset-0 overflow-auto" />
       </div>
     </motion.div>
