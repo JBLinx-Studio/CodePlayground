@@ -1,6 +1,5 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { FileType } from '@/types/file';
+import { FileType, FilesState } from '@/types/file';
 import { toast } from 'sonner';
 
 interface FileSystemContextProps {
@@ -101,7 +100,7 @@ const FileSystemContext = createContext<FileSystemContextProps | undefined>(unde
 
 export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Get saved files or use default files
-  const getSavedFiles = (): Record<string, FileType> => {
+  const getSavedFiles = (): FilesState => {
     try {
       const savedFiles = localStorage.getItem('codePlayground_files');
       if (savedFiles) {
@@ -113,9 +112,9 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     
     // Return default files if no saved files exist
     return {
-      'index.html': { content: defaultHtml, type: 'html' },
-      'styles.css': { content: defaultCss, type: 'css' },
-      'script.js': { content: defaultJs, type: 'js' }
+      'index.html': { content: defaultHtml, type: 'html' as const },
+      'styles.css': { content: defaultCss, type: 'css' as const },
+      'script.js': { content: defaultJs, type: 'js' as const }
     };
   };
 
@@ -133,7 +132,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return 'index.html';
   };
 
-  const [files, setFiles] = useState<Record<string, FileType>>(getSavedFiles());
+  const [files, setFiles] = useState<FilesState>(getSavedFiles());
   const [currentFile, setCurrentFile] = useState<string>(getSavedCurrentFile());
 
   // Save files to localStorage when files change
@@ -169,6 +168,8 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     // Create empty content based on file type
     let content = '';
+    let type: FileType['type'] = 'other';
+    
     switch (fileType) {
       case 'html':
         content = `<!DOCTYPE html>
@@ -185,6 +186,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   <script src="script.js"></script>
 </body>
 </html>`;
+        type = 'html';
         break;
       case 'css':
         content = `/* Styles for ${fileName} */
@@ -196,6 +198,7 @@ body {
 h1 {
   color: #4a5568;
 }`;
+        type = 'css';
         break;
       case 'js':
         content = `// ${fileName}
@@ -207,15 +210,17 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);`;
+        type = 'js';
         break;
       default:
         content = '';
+        type = 'other';
     }
 
     // Add the new file
     setFiles(prev => ({
       ...prev,
-      [fileName]: { content, type: fileType }
+      [fileName]: { content, type }
     }));
 
     // Select the new file

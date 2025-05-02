@@ -13,3 +13,5 @@ export interface FileSystemType {
   deleteFile: (fileName: string) => boolean;
   getAllFiles: () => Array<{ name: string; type: string }>;
 }
+
+export type FilesState = Record<string, FileType>;
