@@ -1,273 +1,310 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from "sonner";
-import { FileType } from "@/types/file";
 
-// Default code templates
-const defaultHTML = `<!-- Write your HTML here -->
-<div class="container">
-  <h1>Hello, World!</h1>
-  <p>Welcome to CodePlayground</p>
-</div>`;
-
-const defaultCSS = `/* Write your CSS here */
-.container {
-  text-align: center;
-  font-family: sans-serif;
-  padding: 2rem;
-}
-
-h1 {
-  color: #6366f1;
-}`;
-
-const defaultJS = `// Write your JavaScript here
-console.log("CodePlayground is running!");`;
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { FileType } from '@/types/file';
+import { toast } from 'sonner';
 
 interface FileSystemContextProps {
   files: Record<string, FileType>;
   currentFile: string;
   handleFileSelect: (fileName: string) => void;
+  handleAddFile: (fileName: string, fileType: string) => void;
+  handleDeleteFile: (fileName: string) => void;
   handleFileChange: (content: string) => void;
-  handleAddFile: (fileName: string, fileType: string) => boolean;
-  handleDeleteFile: (fileName: string) => boolean;
-  resetToDefaults: () => void;
-  clearAll: () => void;
-  copyCode: () => void;
-  downloadCode: () => void;
   getCurrentFileType: () => string;
   getTagColorForFile: () => { color: string; bgColor: string };
+  handleRenameFile: (oldName: string, newName: string) => void;
 }
 
-const FileSystemContext = createContext<FileSystemContextProps | undefined>(undefined);
-
-export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [files, setFiles] = useState<Record<string, FileType>>({
-    'index.html': { content: defaultHTML, type: 'html' },
-    'styles.css': { content: defaultCSS, type: 'css' },
-    'script.js': { content: defaultJS, type: 'js' }
-  });
-  const [currentFile, setCurrentFile] = useState('index.html');
-
-  // Initialize with stored data
-  useEffect(() => {
-    const savedData = localStorage.getItem('codeplayground-data');
-    
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.files) {
-          setFiles(parsedData.files);
-        } else {
-          // Legacy format compatibility
-          setFiles({
-            'index.html': { content: parsedData.html || defaultHTML, type: 'html' },
-            'styles.css': { content: parsedData.css || defaultCSS, type: 'css' },
-            'script.js': { content: parsedData.js || defaultJS, type: 'js' }
-          });
-        }
-        
-        if (parsedData.currentFile) {
-          setCurrentFile(parsedData.currentFile);
-        }
-      } catch (e) {
-        console.error('Failed to load saved code:', e);
-      }
-    }
-  }, []);
-
-  // Save to localStorage when code changes
-  useEffect(() => {
-    saveToLocalStorage();
-  }, [files, currentFile]);
-
-  const saveToLocalStorage = () => {
-    const codeData = { files, currentFile };
-    localStorage.setItem('codeplayground-data', JSON.stringify(codeData));
-  };
-
-  const handleFileSelect = (fileName: string) => {
-    setCurrentFile(fileName);
-  };
-
-  const handleFileChange = (content: string) => {
-    setFiles(prev => ({
-      ...prev,
-      [currentFile]: {
-        ...prev[currentFile],
-        content
-      }
-    }));
-  };
-
-  const handleAddFile = (fileName: string, fileType: string) => {
-    if (files[fileName]) {
-      toast.error(`File ${fileName} already exists`);
-      return false;
-    }
-
-    let content = '';
-    if (fileType === 'html') {
-      content = '<!-- Write your HTML here -->\n<div>\n  \n</div>';
-    } else if (fileType === 'css') {
-      content = '/* Write your CSS here */\n';
-    } else if (fileType === 'js') {
-      content = '// Write your JavaScript here\n';
-    }
-
-    setFiles(prev => ({
-      ...prev,
-      [fileName]: {
-        content,
-        type: fileType as 'html' | 'css' | 'js'
-      }
-    }));
-    
-    setCurrentFile(fileName);
-    toast.success(`File ${fileName} created`);
-    return true;
-  };
-
-  const handleDeleteFile = (fileName: string) => {
-    if (fileName === 'index.html' || fileName === 'styles.css' || fileName === 'script.js') {
-      toast.error("Cannot delete default files");
-      return false;
-    }
-    
-    const newFiles = { ...files };
-    delete newFiles[fileName];
-    setFiles(newFiles);
-    
-    if (currentFile === fileName) {
-      setCurrentFile('index.html');
-    }
-    
-    toast.success(`File ${fileName} deleted`);
-    return true;
-  };
-
-  const resetToDefaults = () => {
-    if (window.confirm('Are you sure you want to reset to defaults?')) {
-      setFiles({
-        'index.html': { content: defaultHTML, type: 'html' },
-        'styles.css': { content: defaultCSS, type: 'css' },
-        'script.js': { content: defaultJS, type: 'js' }
-      });
-      setCurrentFile('index.html');
-      toast.success('Reset to defaults successfully');
-    }
-  };
-
-  const clearAll = () => {
-    if (window.confirm('Are you sure you want to clear all code?')) {
-      const newFiles = { ...files };
-      Object.keys(newFiles).forEach(key => {
-        if (key === 'index.html') {
-          newFiles[key] = { content: '<!-- Write your HTML here -->', type: 'html' };
-        } else if (key === 'styles.css') {
-          newFiles[key] = { content: '/* Write your CSS here */', type: 'css' };
-        } else if (key === 'script.js') {
-          newFiles[key] = { content: '// Write your JavaScript here', type: 'js' };
-        } else {
-          // Other files
-          newFiles[key] = { content: '', type: newFiles[key].type };
-        }
-      });
-      setFiles(newFiles);
-      toast.success('All code cleared');
-    }
-  };
-
-  const copyCode = () => {
-    const allContent = Object.entries(files).map(([name, { content }]) => (
-      `/* ${name} */\n${content}`
-    )).join('\n\n');
-    
-    navigator.clipboard.writeText(allContent)
-      .then(() => toast.success('Code copied to clipboard'))
-      .catch(err => {
-        console.error('Failed to copy:', err);
-        toast.error('Failed to copy code');
-      });
-  };
-
-  const downloadCode = () => {
-    // Create HTML file with proper references
-    let htmlContent = files['index.html']?.content || '';
-    
-    // Prepare HTML file for download
-    const fullHtml = `<!DOCTYPE html>
+// Default HTML content
+const defaultHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodePlayground Project</title>
+  <title>Code Playground</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-${htmlContent}
-<script src="script.js"></script>
+  <div class="container">
+    <h1>Welcome to Code Playground</h1>
+    <p>Edit the files to start coding!</p>
+    <button id="clickMe">Click Me!</button>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>`;
 
-    // Create Blob objects
-    const htmlBlob = new Blob([fullHtml], { type: 'text/html' });
-    const cssBlob = new Blob([files['styles.css']?.content || ''], { type: 'text/css' });
-    const jsBlob = new Blob([files['script.js']?.content || ''], { type: 'text/javascript' });
+// Default CSS content
+const defaultCss = `/* Basic Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h1 {
+  color: #4a5568;
+}
+
+button {
+  background-color: #4c51bf;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #6366f1;
+}`;
+
+// Default JS content
+const defaultJs = `// JavaScript code
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Document is ready!');
+  
+  // Get the button element
+  const button = document.getElementById('clickMe');
+  
+  // Add a click event listener
+  button.addEventListener('click', () => {
+    alert('Button clicked! Add your code here.');
     
-    // Create download links
-    const downloadFile = (blob: Blob, fileName: string) => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
+    // Change button text
+    button.textContent = 'Clicked!';
     
-    // Download files
-    downloadFile(htmlBlob, 'index.html');
-    downloadFile(cssBlob, 'styles.css');
-    downloadFile(jsBlob, 'script.js');
-    
-    // Download other files
-    Object.entries(files).forEach(([name, { content }]) => {
-      if (name !== 'index.html' && name !== 'styles.css' && name !== 'script.js') {
-        downloadFile(new Blob([content], { type: 'text/plain' }), name);
+    // Add a new element
+    const newElement = document.createElement('p');
+    newElement.textContent = 'You clicked the button!';
+    document.querySelector('.container').appendChild(newElement);
+  });
+})`;
+
+const FileSystemContext = createContext<FileSystemContextProps | undefined>(undefined);
+
+export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Get saved files or use default files
+  const getSavedFiles = (): Record<string, FileType> => {
+    try {
+      const savedFiles = localStorage.getItem('codePlayground_files');
+      if (savedFiles) {
+        return JSON.parse(savedFiles);
       }
-    });
+    } catch (e) {
+      console.error('Error loading saved files:', e);
+    }
     
-    toast.success('Files downloaded');
+    // Return default files if no saved files exist
+    return {
+      'index.html': { content: defaultHtml, type: 'html' },
+      'styles.css': { content: defaultCss, type: 'css' },
+      'script.js': { content: defaultJs, type: 'js' }
+    };
   };
 
-  const getCurrentFileType = () => {
-    const file = files[currentFile];
-    if (!file) return 'javascript';
+  // Get saved current file or default to index.html
+  const getSavedCurrentFile = (): string => {
+    try {
+      const savedCurrentFile = localStorage.getItem('codePlayground_currentFile');
+      if (savedCurrentFile) {
+        return savedCurrentFile;
+      }
+    } catch (e) {
+      console.error('Error loading saved current file:', e);
+    }
     
-    if (currentFile.endsWith('.html') || file.type === 'html') return 'html';
-    if (currentFile.endsWith('.css') || file.type === 'css') return 'css';
-    return 'javascript';
+    return 'index.html';
   };
 
-  const getTagColorForFile = () => {
-    const fileType = getCurrentFileType();
-    
+  const [files, setFiles] = useState<Record<string, FileType>>(getSavedFiles());
+  const [currentFile, setCurrentFile] = useState<string>(getSavedCurrentFile());
+
+  // Save files to localStorage when files change
+  useEffect(() => {
+    try {
+      localStorage.setItem('codePlayground_files', JSON.stringify(files));
+    } catch (e) {
+      console.error('Error saving files:', e);
+    }
+  }, [files]);
+
+  // Save current file to localStorage when currentFile changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('codePlayground_currentFile', currentFile);
+    } catch (e) {
+      console.error('Error saving current file:', e);
+    }
+  }, [currentFile]);
+
+  // Handle selecting a file
+  const handleFileSelect = (fileName: string) => {
+    setCurrentFile(fileName);
+  };
+
+  // Handle adding a new file
+  const handleAddFile = (fileName: string, fileType: string) => {
+    // Check if file already exists
+    if (files[fileName]) {
+      toast.error(`File "${fileName}" already exists`);
+      return;
+    }
+
+    // Create empty content based on file type
+    let content = '';
     switch (fileType) {
       case 'html':
+        content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${fileName}</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>${fileName}</h1>
+  
+  <script src="script.js"></script>
+</body>
+</html>`;
+        break;
+      case 'css':
+        content = `/* Styles for ${fileName} */
+body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+h1 {
+  color: #4a5568;
+}`;
+        break;
+      case 'js':
+        content = `// ${fileName}
+console.log('${fileName} loaded');
+
+// Your code here
+function init() {
+  console.log('Initialization');
+}
+
+document.addEventListener('DOMContentLoaded', init);`;
+        break;
+      default:
+        content = '';
+    }
+
+    // Add the new file
+    setFiles(prev => ({
+      ...prev,
+      [fileName]: { content, type: fileType }
+    }));
+
+    // Select the new file
+    setCurrentFile(fileName);
+  };
+
+  // Handle deleting a file
+  const handleDeleteFile = (fileName: string) => {
+    // Don't allow deleting default files
+    if (fileName === 'index.html' || fileName === 'styles.css' || fileName === 'script.js') {
+      toast.error("Can't delete default files");
+      return;
+    }
+
+    // Create a new files object without the deleted file
+    const newFiles = { ...files };
+    delete newFiles[fileName];
+    setFiles(newFiles);
+
+    // If the current file was deleted, select index.html
+    if (currentFile === fileName) {
+      setCurrentFile('index.html');
+    }
+  };
+
+  // Handle changing file content
+  const handleFileChange = (content: string) => {
+    setFiles(prev => ({
+      ...prev,
+      [currentFile]: { ...prev[currentFile], content }
+    }));
+  };
+
+  // Handle renaming a file
+  const handleRenameFile = (oldName: string, newName: string) => {
+    // Don't allow renaming default files
+    if (oldName === 'index.html' || oldName === 'styles.css' || oldName === 'script.js') {
+      toast.error("Can't rename default files");
+      return;
+    }
+
+    // Check if the new name already exists
+    if (files[newName]) {
+      toast.error(`File "${newName}" already exists`);
+      return;
+    }
+
+    // Create a new files object with the renamed file
+    const newFiles = { ...files };
+    newFiles[newName] = newFiles[oldName];
+    delete newFiles[oldName];
+    setFiles(newFiles);
+
+    // If the current file was renamed, select the new name
+    if (currentFile === oldName) {
+      setCurrentFile(newName);
+    }
+  };
+
+  // Get the file type of the current file
+  const getCurrentFileType = () => {
+    if (!files[currentFile]) return 'js';
+    
+    const fileName = currentFile.toLowerCase();
+    if (fileName.endsWith('.html')) return 'html';
+    if (fileName.endsWith('.css')) return 'css';
+    if (fileName.endsWith('.js')) return 'js';
+    return 'js';
+  };
+
+  // Get tag color for file based on type
+  const getTagColorForFile = () => {
+    const type = getCurrentFileType();
+    switch (type) {
+      case 'html':
         return {
-          color: "#ef4444",
-          bgColor: "rgba(239, 68, 68, 0.2)"
+          color: '#ef4444',
+          bgColor: 'rgba(239, 68, 68, 0.2)'
         };
       case 'css':
         return {
-          color: "#3b82f6",
-          bgColor: "rgba(59, 130, 246, 0.2)"
+          color: '#3b82f6',
+          bgColor: 'rgba(59, 130, 246, 0.2)'
         };
+      case 'js':
       default:
         return {
-          color: "#f59e0b",
-          bgColor: "rgba(245, 158, 11, 0.2)"
+          color: '#f59e0b',
+          bgColor: 'rgba(245, 158, 11, 0.2)'
         };
     }
   };
@@ -278,15 +315,12 @@ ${htmlContent}
         files,
         currentFile,
         handleFileSelect,
-        handleFileChange,
         handleAddFile,
         handleDeleteFile,
-        resetToDefaults,
-        clearAll,
-        copyCode,
-        downloadCode,
+        handleFileChange,
         getCurrentFileType,
         getTagColorForFile,
+        handleRenameFile
       }}
     >
       {children}
@@ -296,7 +330,7 @@ ${htmlContent}
 
 export const useFileSystem = () => {
   const context = useContext(FileSystemContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useFileSystem must be used within a FileSystemProvider');
   }
   return context;

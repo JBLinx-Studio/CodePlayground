@@ -32,7 +32,8 @@ export const EditorContainer: React.FC = () => {
     handleDeleteFile,
     handleFileChange,
     getCurrentFileType,
-    getTagColorForFile
+    getTagColorForFile,
+    handleRenameFile
   } = useFileSystem();
 
   // Handle keyboard shortcuts
@@ -84,9 +85,12 @@ export const EditorContainer: React.FC = () => {
   };
 
   return (
-    <div 
-      className="flex flex-1 overflow-hidden bg-gradient-to-br from-[#0f1117] to-[#171e2e] rounded-xl shadow-2xl border border-[#2d3748]/30" 
+    <motion.div 
+      className="flex flex-1 overflow-hidden rounded-xl shadow-2xl border border-[#2d3748]/30 bg-gradient-to-br from-[#0c1018]/90 to-[#151d2e]/90 backdrop-blur-sm"
       ref={containerRef}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
     >
       {/* File Explorer */}
       <AnimatePresence>
@@ -96,7 +100,7 @@ export const EditorContainer: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-64 h-full flex-shrink-0 border-r border-[#2d3748] bg-[#0f1117]/80 backdrop-blur-sm"
+            className="w-64 h-full flex-shrink-0 bg-gradient-to-b from-[#0c101a]/95 to-[#151d2e]/95"
             style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
           >
             <FileExplorer 
@@ -110,6 +114,9 @@ export const EditorContainer: React.FC = () => {
               onDeleteFile={(file) => {
                 handleDeleteFile(file);
                 toast.success("File deleted");
+              }}
+              onRenameFile={(oldName, newName) => {
+                handleRenameFile(oldName, newName);
               }}
             />
           </motion.div>
@@ -163,7 +170,7 @@ export const EditorContainer: React.FC = () => {
       {/* Resize Handle */}
       {!isMobile && view === 'split' && (
         <motion.div 
-          className="w-2 bg-[#2d3748] hover:bg-[#6366f1] cursor-col-resize transition-colors relative group flex items-center justify-center"
+          className="w-2 bg-gradient-to-b from-[#2d3748]/80 to-[#374151]/80 hover:from-[#6366f1]/60 hover:to-[#8b5cf6]/60 cursor-col-resize transition-colors relative group flex items-center justify-center"
           onMouseDown={startResize}
           whileHover={{ scale: 1.2 }}
         >
@@ -181,7 +188,7 @@ export const EditorContainer: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex-1 bg-[#0f1117]"
+          className="flex-1 bg-gradient-to-b from-[#ffffff]/5 to-[#ffffff]/10 backdrop-blur-sm rounded-r-xl overflow-hidden"
           style={{ display: view === 'split' || view === 'preview' ? 'flex' : 'none' }}
           transition={{ duration: 0.3 }}
         >
@@ -211,6 +218,6 @@ export const EditorContainer: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
