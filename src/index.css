@@ -37,6 +37,27 @@ body {
   background-attachment: fixed;
 }
 
+/* Enhanced scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(21, 25, 34, 0.6);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(55, 65, 81, 0.8);
+  border-radius: 8px;
+  border: 2px solid rgba(21, 25, 34, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.7);
+}
+
 /* Ensure resizable panels take up full height */
 .react-resizable-panels__panel {
   height: 100% !important;
@@ -48,12 +69,15 @@ body {
 .cm-editor {
   height: 100% !important;
   min-height: 100% !important;
+  font-feature-settings: "liga" 1;
 }
 
 /* Ensure preview iframe takes full height */
 .preview-iframe {
   height: 100% !important;
   min-height: 100% !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Enhanced scrollbar for CodeEditor to handle multiple editors */
@@ -81,6 +105,66 @@ body {
   background: var(--accent-color);
 }
 
+/* Enhanced code editor transitions */
+.cm-focused {
+  transition: all 0.2s ease-in-out;
+}
+
+.cm-activeLine {
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Improved resize handle appearance */
+.resize-handle {
+  position: relative;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.resize-handle:hover::after {
+  background: rgba(124, 77, 255, 0.5);
+}
+
+/* Enhanced animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(124, 77, 255, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(124, 77, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(124, 77, 255, 0); }
+}
+
+@keyframes pulse-pin {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pin-active {
+  animation: pulse-pin 0.3s ease-in-out;
+  color: var(--accent-color);
+}
+
 @layer components {
   .glassmorphism {
     @apply bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg;
@@ -91,7 +175,7 @@ body {
   }
   
   .button-gradient {
-    @apply bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg;
+    @apply bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg transition-all duration-300;
   }
   
   .section-header {
@@ -120,41 +204,38 @@ body {
   .editor-header-inactive {
     @apply bg-gradient-to-r from-[#151922] to-[#1a1f2c] border-b border-[#2d3748]/50 opacity-80;
   }
-}
 
-/* Custom scrollbar - for the whole application */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #151922;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
-}
-
-/* Animation for pinned/docked items */
-@keyframes pulse-pin {
-  0% {
-    transform: scale(1);
+  /* New enhanced classes */
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-[0_0_15px_rgba(124,77,255,0.3)];
   }
-  50% {
-    transform: scale(1.1);
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#6366f1] to-[#8b5cf6];
   }
-  100% {
-    transform: scale(1);
+
+  .animated-border {
+    @apply relative overflow-hidden;
+  }
+
+  .animated-border::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-[#6366f1] transition-all duration-300;
+  }
+
+  .animated-border:hover::after {
+    @apply w-full;
   }
 }
 
-.pin-active {
-  animation: pulse-pin 0.3s ease-in-out;
-  color: var(--accent-color);
+/* Keyframe animations for enhanced effects */
+@keyframes subtle-float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
 }
+
+.float-animation {
+  animation: subtle-float 3s ease-in-out infinite;
+}
+
