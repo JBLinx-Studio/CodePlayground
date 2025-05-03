@@ -125,7 +125,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ visible, onClose, onIn
   if (!visible) return null;
 
   return (
-    <div className="fixed right-0 top-[56px] bottom-0 w-80 bg-[#1a1f2c] border-l border-[#374151] flex flex-col z-50 shadow-2xl transform transition-transform duration-300">
+    <div className="fixed left-0 top-[56px] bottom-0 w-80 bg-[#1a1f2c] border-r border-[#374151] flex flex-col z-50 shadow-2xl transform transition-transform duration-300">
       <div className="flex items-center justify-between p-4 border-b border-[#374151]">
         <div className="flex items-center gap-2">
           <Code size={20} className="text-[#6366f1]" />

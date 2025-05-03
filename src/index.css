@@ -37,25 +37,6 @@ body {
   background-attachment: fixed;
 }
 
-/* Ensure resizable panels take up full height */
-.react-resizable-panels__panel {
-  height: 100% !important;
-  min-height: 100% !important;
-  overflow: hidden !important;
-}
-
-/* Make sure the editor fills the available space */
-.cm-editor {
-  height: 100% !important;
-  min-height: 100% !important;
-}
-
-/* Ensure preview iframe takes full height */
-.preview-iframe {
-  height: 100% !important;
-  min-height: 100% !important;
-}
-
 @layer components {
   .glassmorphism {
     @apply bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg;

@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -197,16 +196,15 @@ export const EditorContainer: React.FC = () => {
         )}
       </ResizablePanelGroup>
 
-      {/* AI Assistant - Now positions absolutely over other content */}
+      {/* AI Assistant */}
       <AnimatePresence>
         {showAiAssistant && (
           <motion.div
-            initial={{ opacity: 0, x: 300 }}
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 300 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed right-0 top-0 bottom-0 z-50"
-            style={{ pointerEvents: showAiAssistant ? 'auto' : 'none' }}
+            exit={{ opacity: 0, x: 50 }}
+            transition={{ duration: 0.3 }}
+            className="absolute right-0 top-0 bottom-0 z-50 lg:relative"
           >
             <AIAssistant 
               visible={showAiAssistant}
