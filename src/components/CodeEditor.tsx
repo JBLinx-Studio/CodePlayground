@@ -38,7 +38,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       viewRef.current.destroy();
     }
 
-    // Determine language based on file extension
+    // Determine language
     let languageExtension;
     switch (language) {
       case "html":
@@ -47,14 +47,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       case "css":
         languageExtension = css();
         break;
-      case "json":
-      case "md":
-      case "markdown":
-      case "ts":
-      case "tsx":
-      case "jsx":
       default:
-        // Default to JavaScript for most file types as a fallback
         languageExtension = javascript();
         break;
     }
@@ -77,10 +70,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             height: "100%",
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
             fontSize: settings.fontSize,
-            textRendering: "optimizeLegibility",
-            fontSmoothing: "antialiased",
-            WebkitFontSmoothing: "antialiased",
-            MozOsxFontSmoothing: "grayscale",
           },
           ".cm-content": {
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
@@ -182,7 +171,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         </motion.span>
       </div>
       <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative shadow-inner">
-        <div ref={editorRef} className="absolute inset-0 overflow-auto h-full code-scrollbar" />
+        <div ref={editorRef} className="absolute inset-0 overflow-auto h-full" />
       </div>
     </motion.div>
   );

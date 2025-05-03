@@ -83,31 +83,6 @@ export const EditorContainer: React.FC = () => {
     toast.success("Changes saved successfully");
   };
 
-  // Function to prepare content for preview based on file types
-  const preparePreviewContent = () => {
-    let htmlContent = '';
-    let cssContent = '';
-    let jsContent = '';
-    
-    // Process all files to extract content for preview
-    Object.entries(files).forEach(([filename, file]) => {
-      if (file.type === 'html') {
-        htmlContent += file.content + '\n';
-      } else if (file.type === 'css') {
-        cssContent += file.content + '\n';
-      } else if (file.type === 'js' || filename.endsWith('.jsx') || filename.endsWith('.tsx')) {
-        // For JS/JSX/TSX files, we'll include them in the JavaScript content
-        jsContent += file.content + '\n';
-      }
-      // Other file types like markdown, json, etc. will be rendered in their respective editors
-      // but not directly included in the preview
-    });
-    
-    return { html: htmlContent, css: cssContent, js: jsContent };
-  };
-
-  const previewContent = preparePreviewContent();
-
   return (
     <motion.div 
       className="flex flex-1 overflow-hidden rounded-xl shadow-2xl border border-[#2d3748]/30 bg-gradient-to-br from-[#0c1018]/90 to-[#151d2e]/90 backdrop-blur-sm h-full"
@@ -211,9 +186,9 @@ export const EditorContainer: React.FC = () => {
           >
             <div className="w-full h-full overflow-hidden">
               <PreviewPanel 
-                html={previewContent.html} 
-                css={previewContent.css} 
-                js={previewContent.js}  
+                html={files['index.html']?.content || ''} 
+                css={files['styles.css']?.content || ''} 
+                js={files['script.js']?.content || ''}  
               />
             </div>
           </ResizablePanel>

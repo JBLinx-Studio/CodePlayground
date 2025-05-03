@@ -189,20 +189,3 @@ body {
   background-color: #4a5568 !important;
   width: 4px !important;
 }
-
-/* Enhanced editor appearance for different views */
-.split-view .CodeEditor,
-.editor-view .CodeEditor {
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-/* Ensure panels render correctly in split view */
-.split-view {
-  display: flex !important;
-}
-
-.split-view > div {
-  min-width: 0;
-  display: flex;
-}
