@@ -2,11 +2,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useLayout } from '@/contexts/LayoutContext';
-import { Layout, Code, Monitor, Sparkles } from "lucide-react";
+import { Layout, Code, Monitor, Sparkles, Pin } from "lucide-react";
 import { motion } from 'framer-motion';
 
 export const MobileControls: React.FC = () => {
-  const { view, setView, showAiAssistant, setShowAiAssistant } = useLayout();
+  const { view, setView, showAiAssistant, setShowAiAssistant, dockedFiles } = useLayout();
 
   return (
     <motion.div 
@@ -27,6 +27,11 @@ export const MobileControls: React.FC = () => {
         >
           <Layout size={16} className="mr-1" />
           Split
+          {dockedFiles.length > 0 && (
+            <span className="ml-1 bg-[#6366f1] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {dockedFiles.length}
+            </span>
+          )}
         </Button>
         <Button
           variant="ghost"

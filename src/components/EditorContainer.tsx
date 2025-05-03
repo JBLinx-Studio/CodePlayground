@@ -8,9 +8,10 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { GripVertical, Play, Save } from "lucide-react";
+import { GripVertical, Play, Save, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,10 @@ export const EditorContainer: React.FC = () => {
     isMobile,
     startResize,
     showAiAssistant,
-    setShowAiAssistant
+    setShowAiAssistant,
+    dockedFiles,
+    toggleDockedFile,
+    isFileDocked
   } = useLayout();
   
   const {
@@ -57,11 +61,22 @@ export const EditorContainer: React.FC = () => {
           setView('editor');
         }
       }
+      
+      // Alt + D to toggle docking for current file
+      if (e.altKey && e.key === 'd') {
+        e.preventDefault();
+        toggleDockedFile(currentFile);
+        toast.success(
+          isFileDocked(currentFile) 
+            ? `Removed ${currentFile} from docked files` 
+            : `Added ${currentFile} to docked files`
+        );
+      }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [view, isMobile, setView]);
+  }, [view, isMobile, setView, currentFile, toggleDockedFile, isFileDocked]);
 
   // Helper functions for conditional rendering
   const shouldShowFileExplorer = () => {
@@ -83,6 +98,20 @@ export const EditorContainer: React.FC = () => {
 
   const saveCode = () => {
     toast.success("Changes saved successfully");
+  };
+  
+  // Get all files that should be displayed in the editor
+  const getDisplayFiles = () => {
+    if (view !== 'split') {
+      return [currentFile];
+    }
+    
+    // In split view, show docked files and the current file if it's not already docked
+    const filesToShow = [...dockedFiles];
+    if (!dockedFiles.includes(currentFile)) {
+      filesToShow.push(currentFile);
+    }
+    return filesToShow;
   };
 
   return (
@@ -120,6 +149,8 @@ export const EditorContainer: React.FC = () => {
               onRenameFile={(oldName, newName) => {
                 handleRenameFile(oldName, newName);
               }}
+              dockedFiles={dockedFiles}
+              toggleDockedFile={toggleDockedFile}
             />
           </motion.div>
         )}
@@ -140,43 +171,76 @@ export const EditorContainer: React.FC = () => {
             display: view === 'preview' && isMobile ? 'none' : undefined 
           }}
         >
-          <div className="h-full flex flex-col">
-            <CodeEditor 
-              language={getCurrentFileType()}
-              displayName={currentFile}
-              value={files[currentFile]?.content || ''}
-              onChange={handleFileChange}
-              tagColor={getTagColorForFile().color}
-              tagBgColor={getTagColorForFile().bgColor}
-            />
+          <ScrollArea className="h-full">
+            <div className="h-full flex flex-col">
+              {getDisplayFiles().map((fileName, index) => (
+                <div key={fileName} className="flex-1 min-h-[300px] relative mb-2 last:mb-0">
+                  <div className="absolute top-2 right-12 z-10 flex space-x-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={`h-7 w-7 p-0 bg-opacity-70 hover:bg-opacity-100 ${
+                        isFileDocked(fileName) 
+                          ? 'text-[#6366f1] bg-[#6366f1]/10' 
+                          : 'text-[#9ca3af] hover:text-[#6366f1]'
+                      }`}
+                      onClick={() => toggleDockedFile(fileName)}
+                      title={isFileDocked(fileName) ? "Undock file (Alt+D)" : "Dock file (Alt+D)"}
+                    >
+                      {isFileDocked(fileName) ? <PinOff size={14} /> : <Pin size={14} />}
+                    </Button>
+                  </div>
+                  <CodeEditor 
+                    language={getCurrentFileType(fileName)}
+                    displayName={fileName}
+                    value={files[fileName]?.content || ''}
+                    onChange={(content) => {
+                      // Only update if this is the current file
+                      if (fileName === currentFile) {
+                        handleFileChange(content);
+                      } else {
+                        // If not current file, we need to select it first
+                        handleFileSelect(fileName);
+                        // Then update the content in the next tick
+                        setTimeout(() => handleFileChange(content), 0);
+                      }
+                    }}
+                    tagColor={getTagColorForFile(fileName).color}
+                    tagBgColor={getTagColorForFile(fileName).bgColor}
+                    isActive={fileName === currentFile}
+                    onSelect={() => handleFileSelect(fileName)}
+                  />
+                </div>
+              ))}
 
-            {/* Action buttons */}
-            <motion.div 
-              className="absolute bottom-4 right-4 flex gap-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Button 
-                size="sm" 
-                onClick={saveCode}
-                className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
+              {/* Action buttons */}
+              <motion.div 
+                className="sticky bottom-4 right-4 flex gap-2 justify-end p-4"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
               >
-                <Save size={14} className="mr-1" /> Save
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={runCode}
-                className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
-              >
-                <Play size={14} className="mr-1" /> Run
-              </Button>
-            </motion.div>
-          </div>
+                <Button 
+                  size="sm" 
+                  onClick={saveCode}
+                  className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
+                >
+                  <Save size={14} className="mr-1" /> Save
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={runCode}
+                  className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
+                >
+                  <Play size={14} className="mr-1" /> Run
+                </Button>
+              </motion.div>
+            </div>
+          </ScrollArea>
         </ResizablePanel>
 
         {/* Resize Handle */}
-        {(view === 'split' && (view === 'split' || view === 'preview')) && (
+        {(view === 'split' || view === 'preview') && (
           <ResizableHandle withHandle />
         )}
 

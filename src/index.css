@@ -56,6 +56,31 @@ body {
   min-height: 100% !important;
 }
 
+/* Enhanced scrollbar for CodeEditor to handle multiple editors */
+.multi-editor-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-medium);
+}
+
+.multi-editor-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.multi-editor-container::-webkit-scrollbar-track {
+  background: var(--bg-medium);
+  border-radius: 4px;
+}
+
+.multi-editor-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.multi-editor-container::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
 @layer components {
   .glassmorphism {
     @apply bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg;
@@ -76,9 +101,28 @@ body {
   .card {
     @apply rounded-lg overflow-hidden bg-gradient-to-br from-[#151922]/90 to-[#1e293b]/80 border border-[#374151]/50 shadow-lg;
   }
+  
+  /* New styles for docked files */
+  .docked-file {
+    @apply border-l-2 border-[#6366f1];
+  }
+  
+  /* Enhanced resize handle */
+  .resize-handle {
+    @apply bg-gradient-to-b from-[#2d3748]/70 to-[#374151]/70 hover:from-[#6366f1]/30 hover:to-[#7c3aed]/30 transition-colors duration-300;
+  }
+  
+  /* Code editor header active/inactive states */
+  .editor-header-active {
+    @apply bg-gradient-to-r from-[#1a1f2c] to-[#252b3b] border-b-2 border-[#6366f1];
+  }
+  
+  .editor-header-inactive {
+    @apply bg-gradient-to-r from-[#151922] to-[#1a1f2c] border-b border-[#2d3748]/50 opacity-80;
+  }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - for the whole application */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -95,4 +139,22 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
+}
+
+/* Animation for pinned/docked items */
+@keyframes pulse-pin {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pin-active {
+  animation: pulse-pin 0.3s ease-in-out;
+  color: var(--accent-color);
 }

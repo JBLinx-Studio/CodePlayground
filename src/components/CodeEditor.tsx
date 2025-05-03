@@ -16,6 +16,8 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   tagColor: string;
   tagBgColor: string;
+  isActive?: boolean;
+  onSelect?: () => void;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -25,6 +27,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onChange,
   tagColor,
   tagBgColor,
+  isActive = true,
+  onSelect,
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -142,12 +146,19 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   return (
     <motion.div 
-      className="flex-1 min-h-[100px] flex flex-col border-b border-[#2d3748] dark:border-[#374151] last:border-b-0 overflow-hidden"
+      className={`flex-1 min-h-[100px] flex flex-col border border-[#2d3748] dark:border-[#374151] overflow-hidden rounded-lg mb-4 shadow-lg ${
+        isActive ? 'ring-2 ring-[#6366f1]/30' : ''
+      }`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
+      onClick={onSelect}
     >
-      <div className="bg-gradient-to-r from-[#151922] to-[#1a1f2c] dark:from-[#1c2333] dark:to-[#1e293b] px-4 py-2 flex justify-between items-center border-b border-[#2d3748]/50">
+      <div 
+        className={`bg-gradient-to-r from-[#151922] to-[#1a1f2c] dark:from-[#1c2333] dark:to-[#1e293b] px-4 py-2 flex justify-between items-center ${
+          isActive ? 'border-b-2 border-[#6366f1]' : 'border-b border-[#2d3748]/50'
+        }`}
+      >
         <span className="text-sm font-medium text-white flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#f472b6]"></span>
           {displayName}
@@ -160,7 +171,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           {language}
         </motion.span>
       </div>
-      <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative">
+      <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative min-h-[200px]">
         <div ref={editorRef} className="absolute inset-0 overflow-auto" />
       </div>
     </motion.div>

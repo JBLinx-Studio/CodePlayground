@@ -9,8 +9,8 @@ interface FileSystemContextProps {
   handleAddFile: (fileName: string, fileType: string) => void;
   handleDeleteFile: (fileName: string) => void;
   handleFileChange: (content: string) => void;
-  getCurrentFileType: () => string;
-  getTagColorForFile: () => { color: string; bgColor: string };
+  getCurrentFileType: (fileName?: string) => string;
+  getTagColorForFile: (fileName?: string) => { color: string; bgColor: string };
   handleRenameFile: (oldName: string, newName: string) => void;
   resetToDefaults: () => void;
   clearAll: () => void;
@@ -157,6 +157,44 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [currentFile]);
 
+  // Get the file type based on a filename
+  const getFileType = (fileName: string): string => {
+    const fileExt = fileName.split('.').pop()?.toLowerCase() || '';
+    if (fileExt === 'html') return 'html';
+    if (fileExt === 'css') return 'css';
+    if (fileExt === 'js') return 'js';
+    return 'other';
+  };
+
+  // Get the file type of a specific file or the current file
+  const getCurrentFileType = (fileName: string = currentFile) => {
+    if (!files[fileName]) return 'js';
+    return getFileType(fileName);
+  };
+
+  // Get tag color for a specific file or the current file
+  const getTagColorForFile = (fileName: string = currentFile) => {
+    const type = getCurrentFileType(fileName);
+    switch (type) {
+      case 'html':
+        return {
+          color: '#ef4444',
+          bgColor: 'rgba(239, 68, 68, 0.2)'
+        };
+      case 'css':
+        return {
+          color: '#3b82f6',
+          bgColor: 'rgba(59, 130, 246, 0.2)'
+        };
+      case 'js':
+      default:
+        return {
+          color: '#f59e0b',
+          bgColor: 'rgba(245, 158, 11, 0.2)'
+        };
+    }
+  };
+
   // Handle selecting a file
   const handleFileSelect = (fileName: string) => {
     setCurrentFile(fileName);
@@ -281,40 +319,6 @@ document.addEventListener('DOMContentLoaded', init);`;
     // If the current file was renamed, select the new name
     if (currentFile === oldName) {
       setCurrentFile(newName);
-    }
-  };
-
-  // Get the file type of the current file
-  const getCurrentFileType = () => {
-    if (!files[currentFile]) return 'js';
-    
-    const fileName = currentFile.toLowerCase();
-    if (fileName.endsWith('.html')) return 'html';
-    if (fileName.endsWith('.css')) return 'css';
-    if (fileName.endsWith('.js')) return 'js';
-    return 'js';
-  };
-
-  // Get tag color for file based on type
-  const getTagColorForFile = () => {
-    const type = getCurrentFileType();
-    switch (type) {
-      case 'html':
-        return {
-          color: '#ef4444',
-          bgColor: 'rgba(239, 68, 68, 0.2)'
-        };
-      case 'css':
-        return {
-          color: '#3b82f6',
-          bgColor: 'rgba(59, 130, 246, 0.2)'
-        };
-      case 'js':
-      default:
-        return {
-          color: '#f59e0b',
-          bgColor: 'rgba(245, 158, 11, 0.2)'
-        };
     }
   };
 

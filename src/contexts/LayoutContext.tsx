@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { toast } from "sonner";
 
@@ -15,6 +14,9 @@ interface LayoutContextProps {
   isMobile: boolean;
   showAiAssistant: boolean;
   setShowAiAssistant: (show: boolean) => void;
+  dockedFiles: string[];
+  toggleDockedFile: (fileName: string) => void;
+  isFileDocked: (fileName: string) => boolean;
 }
 
 const LayoutContext = createContext<LayoutContextProps | undefined>(undefined);
@@ -26,6 +28,7 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [dockedFiles, setDockedFiles] = useState<string[]>([]);
 
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
@@ -36,16 +39,18 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       localStorage.setItem('codePlayground_view', view);
       localStorage.setItem('codePlayground_panelWidth', panelWidth.toString());
+      localStorage.setItem('codePlayground_dockedFiles', JSON.stringify(dockedFiles));
     } catch (e) {
       console.error("Could not save layout preferences:", e);
     }
-  }, [view, panelWidth]);
+  }, [view, panelWidth, dockedFiles]);
 
   // Load user preferences from localStorage
   useEffect(() => {
     try {
       const savedView = localStorage.getItem('codePlayground_view') as 'split' | 'editor' | 'preview' | null;
       const savedWidth = localStorage.getItem('codePlayground_panelWidth');
+      const savedDockedFiles = localStorage.getItem('codePlayground_dockedFiles');
       
       if (savedView && ['split', 'editor', 'preview'].includes(savedView)) {
         setView(savedView);
@@ -54,10 +59,30 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (savedWidth) {
         setPanelWidth(Number(savedWidth));
       }
+      
+      if (savedDockedFiles) {
+        setDockedFiles(JSON.parse(savedDockedFiles));
+      }
     } catch (e) {
       console.error("Could not load layout preferences:", e);
     }
   }, []);
+
+  // Toggle whether a file is docked
+  const toggleDockedFile = (fileName: string) => {
+    setDockedFiles(prev => {
+      if (prev.includes(fileName)) {
+        return prev.filter(file => file !== fileName);
+      } else {
+        return [...prev, fileName];
+      }
+    });
+  };
+
+  // Check if a file is docked
+  const isFileDocked = (fileName: string) => {
+    return dockedFiles.includes(fileName);
+  };
 
   // Handle resize events
   useEffect(() => {
@@ -146,6 +171,11 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         e.preventDefault();
         toggleFullscreen();
       }
+      // Alt+D: Toggle dock for current file
+      else if (e.altKey && e.key === 'd') {
+        // This requires access to the current file, which we'll handle in the FileSystemContext
+        // We'll implement this in the EditorContainer
+      }
     };
     
     document.addEventListener('keydown', handleKeyDown);
@@ -222,6 +252,9 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isMobile,
         showAiAssistant,
         setShowAiAssistant,
+        dockedFiles,
+        toggleDockedFile,
+        isFileDocked,
       }}
     >
       {React.cloneElement(children as React.ReactElement, { ref: setContainerRef })}
