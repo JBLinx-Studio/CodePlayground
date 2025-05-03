@@ -57,6 +57,15 @@ body {
   .card {
     @apply rounded-lg overflow-hidden bg-gradient-to-br from-[#151922]/90 to-[#1e293b]/80 border border-[#374151]/50 shadow-lg;
   }
+
+  .glow {
+    @apply relative;
+    text-shadow: 0 0 10px rgba(124, 77, 255, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  
+  .resizable-handle {
+    @apply bg-[#2d3748] hover:bg-[#4a5568] transition-colors !important;
+  }
 }
 
 /* Custom scrollbar */
@@ -87,6 +96,7 @@ body {
 .cm-editor .cm-scroller {
   font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
   line-height: 1.5 !important;
+  font-feature-settings: "calt" 1; /* For font ligatures */
 }
 
 .cm-editor .cm-content {
@@ -100,4 +110,82 @@ body {
 /* Enhanced transition for panels */
 .react-resizable-panel-transition {
   transition: flex-basis 0.2s ease !important;
+}
+
+/* View transitions */
+.view-enter {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.view-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+}
+
+.view-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.view-exit-active {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+}
+
+/* Specially styled scrollbar for code blocks */
+.code-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.code-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 3px;
+}
+
+.code-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.5);
+  border-radius: 3px;
+}
+
+.code-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.7);
+}
+
+/* Fix for ResizableHandle in split view */
+[data-panel-group-direction="horizontal"] .react-resizable-handle {
+  width: 4px !important;
+  background-color: #2d3748 !important;
+  position: relative;
+}
+
+[data-panel-group-direction="horizontal"] .react-resizable-handle:hover {
+  background-color: #4a5568 !important;
+}
+
+[data-panel-group-direction="horizontal"] .react-resizable-handle:after {
+  content: "";
+  width: 1px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.3);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 1px;
+}
+
+/* Improve the resizable handle visibility */
+.PanelResizeHandle {
+  background-color: #2d3748 !important;
+  width: 4px !important;
+  transition: background-color 0.2s ease;
+}
+
+.PanelResizeHandle:hover {
+  background-color: #4a5568 !important;
+  width: 4px !important;
 }
