@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useLayout } from '@/contexts/LayoutContext';
-import { Split, Code, Monitor, Sparkles } from "lucide-react";
+import { Layout, Code, Monitor, Sparkles } from "lucide-react";
 import { motion } from 'framer-motion';
 
 export const MobileControls: React.FC = () => {
@@ -25,7 +25,7 @@ export const MobileControls: React.FC = () => {
           }`}
           onClick={() => setView('split')}
         >
-          <Split size={16} className="mr-1" />
+          <Layout size={16} className="mr-1" />
           Split
         </Button>
         <Button
