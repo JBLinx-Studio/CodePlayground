@@ -20,7 +20,20 @@ interface LayoutContextProps {
 const LayoutContext = createContext<LayoutContextProps | undefined>(undefined);
 
 export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [view, setView] = useState<'split' | 'editor' | 'preview'>('split');
+  // Initialize with split view by default, or load from preferences
+  const defaultView = () => {
+    try {
+      const savedView = localStorage.getItem('codePlayground_view') as 'split' | 'editor' | 'preview' | null;
+      if (savedView && ['split', 'editor', 'preview'].includes(savedView)) {
+        return savedView;
+      }
+    } catch (e) {
+      console.error("Could not load layout preferences:", e);
+    }
+    return 'split';
+  };
+
+  const [view, setView] = useState<'split' | 'editor' | 'preview'>(defaultView());
   const [panelWidth, setPanelWidth] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -44,12 +57,7 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // Load user preferences from localStorage
   useEffect(() => {
     try {
-      const savedView = localStorage.getItem('codePlayground_view') as 'split' | 'editor' | 'preview' | null;
       const savedWidth = localStorage.getItem('codePlayground_panelWidth');
-      
-      if (savedView && ['split', 'editor', 'preview'].includes(savedView)) {
-        setView(savedView);
-      }
       
       if (savedWidth) {
         setPanelWidth(Number(savedWidth));
@@ -100,6 +108,7 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Switch to appropriate view on mobile
       if (mobile && view === 'split') {
         setView('editor');
+        toast.info("Split view not available on small screens");
       }
       
       // Update body class for responsive styles
@@ -145,6 +154,11 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       else if (e.key === 'F11') {
         e.preventDefault();
         toggleFullscreen();
+      }
+      // Escape key to close AI Assistant if it's open
+      else if (e.key === 'Escape' && showAiAssistant) {
+        setShowAiAssistant(false);
+        toast.info("AI Assistant closed");
       }
     };
     
@@ -204,6 +218,15 @@ export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       toast.info("Split view not available on mobile. Switched to editor view.");
     } else {
       setView(newView);
+      
+      // Show appropriate toast message
+      if (newView === 'split') {
+        toast.info("Split view: Edit code and see the preview");
+      } else if (newView === 'editor') {
+        toast.info("Editor view: Focus on coding");
+      } else if (newView === 'preview') {
+        toast.info("Preview view: See your result");
+      }
     }
   };
 

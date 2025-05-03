@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -67,7 +68,7 @@ export const EditorContainer: React.FC = () => {
     if (isMobile) {
       return view === 'editor';
     }
-    return true;
+    return view !== 'preview'; // Show file explorer in both editor and split views on desktop
   };
 
   const insertCodeFromAI = (code: string) => {
@@ -102,7 +103,7 @@ export const EditorContainer: React.FC = () => {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
             className="w-64 h-full flex-shrink-0 bg-gradient-to-b from-[#0c101a]/95 to-[#151d2e]/95"
-            style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
+            style={{ display: view === 'preview' ? 'none' : undefined }}
           >
             <FileExplorer 
               files={files}
@@ -129,62 +130,61 @@ export const EditorContainer: React.FC = () => {
         direction={isMobile ? "vertical" : "horizontal"}
         className="flex-1 h-full"
       >
-        {/* Editors Panel */}
-        <ResizablePanel 
-          defaultSize={panelWidth} 
-          minSize={20}
-          maxSize={80}
-          className="h-full"
-          style={{ 
-            display: view === 'preview' && isMobile ? 'none' : undefined 
-          }}
-        >
-          <div className="h-full flex flex-col">
-            <CodeEditor 
-              language={getCurrentFileType()}
-              displayName={currentFile}
-              value={files[currentFile]?.content || ''}
-              onChange={handleFileChange}
-              tagColor={getTagColorForFile().color}
-              tagBgColor={getTagColorForFile().bgColor}
-            />
+        {/* Editors Panel - Only show in editor and split views */}
+        {view !== 'preview' && (
+          <ResizablePanel 
+            defaultSize={panelWidth} 
+            minSize={20}
+            maxSize={view === 'split' ? 80 : 100}
+            className="h-full"
+          >
+            <div className="h-full flex flex-col">
+              <CodeEditor 
+                language={getCurrentFileType()}
+                displayName={currentFile}
+                value={files[currentFile]?.content || ''}
+                onChange={handleFileChange}
+                tagColor={getTagColorForFile().color}
+                tagBgColor={getTagColorForFile().bgColor}
+              />
 
-            {/* Action buttons */}
-            <motion.div 
-              className="absolute bottom-4 right-4 flex gap-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Button 
-                size="sm" 
-                onClick={saveCode}
-                className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
+              {/* Action buttons */}
+              <motion.div 
+                className="absolute bottom-4 right-4 flex gap-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
               >
-                <Save size={14} className="mr-1" /> Save
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={runCode}
-                className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
-              >
-                <Play size={14} className="mr-1" /> Run
-              </Button>
-            </motion.div>
-          </div>
-        </ResizablePanel>
+                <Button 
+                  size="sm" 
+                  onClick={saveCode}
+                  className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
+                >
+                  <Save size={14} className="mr-1" /> Save
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={runCode}
+                  className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
+                >
+                  <Play size={14} className="mr-1" /> Run
+                </Button>
+              </motion.div>
+            </div>
+          </ResizablePanel>
+        )}
 
-        {/* Resize Handle */}
-        {(view === 'split' && (view === 'split' || view === 'preview')) && (
+        {/* Resize Handle - Only show in split view */}
+        {view === 'split' && (
           <ResizableHandle withHandle />
         )}
 
-        {/* Preview Panel */}
+        {/* Preview Panel - Only show in split or preview views */}
         {(view === 'split' || view === 'preview') && (
           <ResizablePanel 
-            defaultSize={100 - panelWidth} 
+            defaultSize={view === 'split' ? 100 - panelWidth : 100}
             minSize={20}
-            maxSize={80}
+            maxSize={view === 'split' ? 80 : 100}
             className="h-full"
           >
             <PreviewPanel 
@@ -196,7 +196,7 @@ export const EditorContainer: React.FC = () => {
         )}
       </ResizablePanelGroup>
 
-      {/* AI Assistant */}
+      {/* AI Assistant - Overlay on top */}
       <AnimatePresence>
         {showAiAssistant && (
           <motion.div
@@ -204,7 +204,11 @@ export const EditorContainer: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
             transition={{ duration: 0.3 }}
-            className="absolute right-0 top-0 bottom-0 z-50 lg:relative"
+            className="absolute right-0 top-0 bottom-0 z-50"
+            style={{ 
+              width: '350px',
+              boxShadow: '-5px 0 15px rgba(0, 0, 0, 0.1)'
+            }}
           >
             <AIAssistant 
               visible={showAiAssistant}
