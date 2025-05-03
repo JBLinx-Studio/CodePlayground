@@ -75,7 +75,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
             fontSize: settings.fontSize,
             padding: "10px 0",
-            lineHeight: "1.6"
           },
           ".cm-gutters": {
             backgroundColor: settings.theme === 'dark' ? "#151922" : "#e9ecef",
@@ -104,20 +103,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           ".cm-line": {
             padding: "0 10px",
           },
-          // Enhanced syntax highlighting
-          ".cm-keyword": { color: settings.theme === 'dark' ? "#f472b6" : "#db2777", fontWeight: "bold" },
+          ".cm-keyword": { color: settings.theme === 'dark' ? "#f472b6" : "#db2777" },
           ".cm-property": { color: settings.theme === 'dark' ? "#93c5fd" : "#3b82f6" },
           ".cm-string": { color: settings.theme === 'dark' ? "#a5b4fc" : "#6366f1" },
-          ".cm-function": { color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6", fontWeight: "500" },
-          ".cm-comment": { color: settings.theme === 'dark' ? "#6b7280" : "#9ca3af", fontStyle: "italic" },
-          ".cm-operator": { color: settings.theme === 'dark' ? "#f59e0b" : "#d97706" },
-          ".cm-number": { color: settings.theme === 'dark' ? "#10b981" : "#059669" },
-          ".cm-def": { color: settings.theme === 'dark' ? "#60a5fa" : "#3b82f6", fontWeight: "500" },
-          ".cm-variable": { color: settings.theme === 'dark' ? "#e4e5e7" : "#1e293b" },
-          ".cm-variable-2": { color: settings.theme === 'dark' ? "#cbd5e1" : "#475569" },
-          ".cm-atom": { color: settings.theme === 'dark' ? "#f43f5e" : "#be123c" },
-          ".cm-tag": { color: settings.theme === 'dark' ? "#ef4444" : "#dc2626" },
-          ".cm-attribute": { color: settings.theme === 'dark' ? "#f59e0b" : "#d97706" }
+          ".cm-function": { color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6" },
+          ".cm-comment": { color: settings.theme === 'dark' ? "#6b7280" : "#9ca3af" }
         }),
       ],
     });
@@ -170,8 +160,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           {language}
         </motion.span>
       </div>
-      <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative shadow-inner">
-        <div ref={editorRef} className="absolute inset-0 overflow-auto h-full" />
+      <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative">
+        <div ref={editorRef} className="absolute inset-0 overflow-auto" />
       </div>
     </motion.div>
   );
