@@ -8,7 +8,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { GripVertical, Play, Save, Pin, PinOff } from "lucide-react";
+import { GripVertical, Play, Save, Pin, PinOff, FileCode, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -47,7 +47,7 @@ export const EditorContainer: React.FC = () => {
       // Ctrl/Cmd + S to save
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        toast.success("Changes saved");
+        saveCode();
       }
       
       // Ctrl/Cmd + P to toggle preview
@@ -60,6 +60,34 @@ export const EditorContainer: React.FC = () => {
           // Otherwise switch to editor view
           setView('editor');
         }
+      }
+
+      // Alt + 1 for editor view
+      if (e.altKey && e.key === '1') {
+        e.preventDefault();
+        setView('editor');
+        toast.info("Editor view");
+      }
+      
+      // Alt + 2 for split view
+      if (e.altKey && e.key === '2') {
+        e.preventDefault();
+        setView('split');
+        toast.info("Split view");
+      }
+      
+      // Alt + 3 for preview view
+      if (e.altKey && e.key === '3') {
+        e.preventDefault();
+        setView('preview');
+        toast.info("Preview view");
+      }
+      
+      // Alt + A to toggle AI assistant
+      if (e.altKey && e.key === 'a') {
+        e.preventDefault();
+        setShowAiAssistant(prev => !prev);
+        toast.info(showAiAssistant ? "AI Assistant closed" : "AI Assistant opened");
       }
       
       // Alt + D to toggle docking for current file
@@ -76,7 +104,7 @@ export const EditorContainer: React.FC = () => {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [view, isMobile, setView, currentFile, toggleDockedFile, isFileDocked]);
+  }, [view, isMobile, setView, currentFile, toggleDockedFile, isFileDocked, showAiAssistant]);
 
   // Helper functions for conditional rendering
   const shouldShowFileExplorer = () => {
@@ -112,6 +140,23 @@ export const EditorContainer: React.FC = () => {
       filesToShow.push(currentFile);
     }
     return filesToShow;
+  };
+
+  // Animation variants for editors
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0 }
   };
 
   return (
@@ -171,10 +216,19 @@ export const EditorContainer: React.FC = () => {
             display: view === 'preview' && isMobile ? 'none' : undefined 
           }}
         >
-          <ScrollArea className="h-full">
-            <div className="h-full flex flex-col">
+          <ScrollArea className="h-full multi-editor-container">
+            <motion.div
+              className="h-full flex flex-col p-3"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
               {getDisplayFiles().map((fileName, index) => (
-                <div key={fileName} className="flex-1 min-h-[300px] relative mb-2 last:mb-0">
+                <motion.div 
+                  key={fileName} 
+                  className="flex-1 min-h-[300px] relative mb-4 last:mb-0"
+                  variants={itemVariants}
+                >
                   <div className="absolute top-2 right-12 z-10 flex space-x-1">
                     <Button
                       size="sm"
@@ -183,11 +237,11 @@ export const EditorContainer: React.FC = () => {
                         isFileDocked(fileName) 
                           ? 'text-[#6366f1] bg-[#6366f1]/10' 
                           : 'text-[#9ca3af] hover:text-[#6366f1]'
-                      }`}
+                      } transition-all duration-300 hover:scale-110`}
                       onClick={() => toggleDockedFile(fileName)}
                       title={isFileDocked(fileName) ? "Undock file (Alt+D)" : "Dock file (Alt+D)"}
                     >
-                      {isFileDocked(fileName) ? <PinOff size={14} /> : <Pin size={14} />}
+                      {isFileDocked(fileName) ? <PinOff size={14} className="pin-active" /> : <Pin size={14} />}
                     </Button>
                   </div>
                   <CodeEditor 
@@ -210,12 +264,12 @@ export const EditorContainer: React.FC = () => {
                     isActive={fileName === currentFile}
                     onSelect={() => handleFileSelect(fileName)}
                   />
-                </div>
+                </motion.div>
               ))}
 
               {/* Action buttons */}
               <motion.div 
-                className="sticky bottom-4 right-4 flex gap-2 justify-end p-4"
+                className="sticky bottom-4 right-4 flex gap-2 justify-end"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
@@ -223,25 +277,29 @@ export const EditorContainer: React.FC = () => {
                 <Button 
                   size="sm" 
                   onClick={saveCode}
-                  className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-lg"
+                  className="primary-button"
                 >
-                  <Save size={14} className="mr-1" /> Save
+                  <Save size={14} /> Save
                 </Button>
                 <Button 
                   size="sm" 
                   onClick={runCode}
-                  className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg"
+                  className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#34d399] hover:to-[#10b981] text-white shadow-lg transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-1"
                 >
-                  <Play size={14} className="mr-1" /> Run
+                  <Play size={14} /> Run
                 </Button>
               </motion.div>
-            </div>
+            </motion.div>
           </ScrollArea>
         </ResizablePanel>
 
         {/* Resize Handle */}
         {(view === 'split' || view === 'preview') && (
-          <ResizableHandle withHandle />
+          <ResizableHandle withHandle>
+            <div className="flex h-full items-center justify-center">
+              <GripVertical size={16} className="text-[#4b5563] opacity-60" />
+            </div>
+          </ResizableHandle>
         )}
 
         {/* Preview Panel */}
@@ -280,6 +338,39 @@ export const EditorContainer: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Keyboard shortcuts help tooltip */}
+      <motion.div 
+        className="fixed bottom-4 left-4 rounded-md bg-[#1a1f2c]/80 backdrop-blur-sm border border-[#374151]/50 px-3 py-2 z-20 shadow-lg hidden md:block"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 0.9, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
+      >
+        <div className="flex flex-col space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] text-[#9ca3af] font-medium">Keyboard Shortcuts</span>
+            <Code size={12} className="text-[#9ca3af]" />
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+            <div className="flex items-center">
+              <kbd className="kbd">Alt+1-3</kbd>
+              <span className="text-[10px] text-[#9ca3af] ml-1.5">Views</span>
+            </div>
+            <div className="flex items-center">
+              <kbd className="kbd">Alt+D</kbd>
+              <span className="text-[10px] text-[#9ca3af] ml-1.5">Dock</span>
+            </div>
+            <div className="flex items-center">
+              <kbd className="kbd">Alt+A</kbd>
+              <span className="text-[10px] text-[#9ca3af] ml-1.5">AI</span>
+            </div>
+            <div className="flex items-center">
+              <kbd className="kbd">Ctrl+S</kbd>
+              <span className="text-[10px] text-[#9ca3af] ml-1.5">Save</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 };

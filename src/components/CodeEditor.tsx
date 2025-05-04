@@ -8,6 +8,7 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { useSettings } from "@/contexts/SettingsContext";
 import { motion } from "framer-motion";
+import { FileCode, FileText, FileCss } from "lucide-react";
 
 interface CodeEditorProps {
   language: string;
@@ -33,6 +34,18 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const { settings } = useSettings();
+
+  // Helper function to get icon based on language
+  const getFileIcon = () => {
+    switch (language) {
+      case "html":
+        return <FileText size={16} className="text-[#f06529]" />;
+      case "css":
+        return <FileCss size={16} className="text-[#2965f1]" />;
+      default:
+        return <FileCode size={16} className="text-[#f7df1e]" />;
+    }
+  };
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -107,11 +120,18 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           ".cm-line": {
             padding: "0 10px",
           },
-          ".cm-keyword": { color: settings.theme === 'dark' ? "#f472b6" : "#db2777" },
+          // Enhanced syntax highlighting
+          ".cm-keyword": { color: settings.theme === 'dark' ? "#f472b6" : "#db2777", fontWeight: "bold" },
           ".cm-property": { color: settings.theme === 'dark' ? "#93c5fd" : "#3b82f6" },
           ".cm-string": { color: settings.theme === 'dark' ? "#a5b4fc" : "#6366f1" },
-          ".cm-function": { color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6" },
-          ".cm-comment": { color: settings.theme === 'dark' ? "#6b7280" : "#9ca3af" }
+          ".cm-function": { color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6", fontWeight: "500" },
+          ".cm-comment": { color: settings.theme === 'dark' ? "#6b7280" : "#9ca3af", fontStyle: "italic" },
+          ".cm-number": { color: settings.theme === 'dark' ? "#fb923c" : "#ea580c" },
+          ".cm-atom": { color: settings.theme === 'dark' ? "#e879f9" : "#d946ef" },
+          ".cm-operator": { color: settings.theme === 'dark' ? "#d1d5db" : "#4b5563" },
+          ".cm-meta": { color: settings.theme === 'dark' ? "#94a3b8" : "#64748b" },
+          ".cm-tag": { color: settings.theme === 'dark' ? "#f87171" : "#ef4444" },
+          ".cm-attribute": { color: settings.theme === 'dark' ? "#fcd34d" : "#f59e0b" },
         }),
       ],
     });
@@ -146,21 +166,24 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   return (
     <motion.div 
-      className={`flex-1 min-h-[100px] flex flex-col border border-[#2d3748] dark:border-[#374151] overflow-hidden rounded-lg mb-4 shadow-lg ${
+      className={`flex-1 min-h-[100px] flex flex-col border ${isActive ? 'border-[#6366f1]/50' : 'border-[#2d3748]'} dark:border-[#374151] overflow-hidden rounded-lg mb-4 shadow-lg ${
         isActive ? 'ring-2 ring-[#6366f1]/30' : ''
-      }`}
+      } transition-all duration-300 hover:shadow-xl`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       onClick={onSelect}
+      whileHover={{ y: -2 }}
     >
       <div 
-        className={`bg-gradient-to-r from-[#151922] to-[#1a1f2c] dark:from-[#1c2333] dark:to-[#1e293b] px-4 py-2 flex justify-between items-center ${
-          isActive ? 'border-b-2 border-[#6366f1]' : 'border-b border-[#2d3748]/50'
-        }`}
+        className={`px-4 py-2 flex justify-between items-center ${
+          isActive 
+            ? 'bg-gradient-to-r from-[#1a1f2c]/95 to-[#252b3b]/95 border-b-2 border-[#6366f1]' 
+            : 'bg-gradient-to-r from-[#151922]/95 to-[#1a1f2c]/95 border-b border-[#2d3748]/50'
+        } transition-colors duration-300`}
       >
         <span className="text-sm font-medium text-white flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#f472b6]"></span>
+          {getFileIcon()}
           {displayName}
         </span>
         <motion.span
@@ -174,6 +197,14 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative min-h-[200px]">
         <div ref={editorRef} className="absolute inset-0 overflow-auto" />
       </div>
+      {isActive && (
+        <motion.div 
+          className="h-1 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6]"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.3 }}
+        />
+      )}
     </motion.div>
   );
 };

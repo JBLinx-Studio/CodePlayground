@@ -165,6 +165,38 @@ body {
   color: var(--accent-color);
 }
 
+/* New animation keyframes */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px 0 rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 20px 0 rgba(99, 102, 241, 0.3); }
+  100% { box-shadow: 0 0 5px 0 rgba(99, 102, 241, 0.5); }
+}
+
+@keyframes border-glow {
+  0% { border-color: rgba(99, 102, 241, 0.3); }
+  50% { border-color: rgba(99, 102, 241, 0.6); }
+  100% { border-color: rgba(99, 102, 241, 0.3); }
+}
+
+/* Apply new animations */
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.glow-animation {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.border-glow-animation {
+  animation: border-glow 2s ease-in-out infinite;
+}
+
 @layer components {
   .glassmorphism {
     @apply bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg;
@@ -186,7 +218,7 @@ body {
     @apply rounded-lg overflow-hidden bg-gradient-to-br from-[#151922]/90 to-[#1e293b]/80 border border-[#374151]/50 shadow-lg;
   }
   
-  /* New styles for docked files */
+  /* Enhanced styles for docked files */
   .docked-file {
     @apply border-l-2 border-[#6366f1];
   }
@@ -196,16 +228,35 @@ body {
     @apply bg-gradient-to-b from-[#2d3748]/70 to-[#374151]/70 hover:from-[#6366f1]/30 hover:to-[#7c3aed]/30 transition-colors duration-300;
   }
   
-  /* Code editor header active/inactive states */
-  .editor-header-active {
-    @apply bg-gradient-to-r from-[#1a1f2c] to-[#252b3b] border-b-2 border-[#6366f1];
+  /* Enhanced button styles */
+  .action-button {
+    @apply transition-all duration-300 rounded-md font-medium text-sm flex items-center gap-2 px-4 py-2;
   }
   
-  .editor-header-inactive {
-    @apply bg-gradient-to-r from-[#151922] to-[#1a1f2c] border-b border-[#2d3748]/50 opacity-80;
+  .primary-button {
+    @apply action-button bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:from-[#818cf8] hover:to-[#a78bfa] text-white shadow-md hover:shadow-lg hover:-translate-y-0.5;
+  }
+  
+  .secondary-button {
+    @apply action-button bg-gradient-to-r from-[#1e293b]/80 to-[#1a1f2c]/80 hover:from-[#2d3748]/70 hover:to-[#374151]/70 text-[#e4e5e7] border border-[#374151]/50 hover:border-[#6366f1]/30;
+  }
+  
+  /* Enhanced inputs */
+  .input-field {
+    @apply bg-[#151922]/80 border border-[#374151]/50 focus:border-[#6366f1]/50 text-[#e4e5e7] rounded-md px-4 py-2 outline-none focus:ring-1 focus:ring-[#6366f1]/30 transition-all duration-300;
+  }
+  
+  /* New tooltip style */
+  .custom-tooltip {
+    @apply bg-[#151922]/90 backdrop-blur-sm border border-[#374151]/50 text-[#e4e5e7] shadow-lg px-3 py-1.5 text-xs rounded-md;
+  }
+  
+  /* Enhanced kbd style */
+  .kbd {
+    @apply bg-[#151922] border border-[#2d3748] text-[#9ca3af] text-xs rounded px-1.5 py-0.5 font-mono shadow-inner;
   }
 
-  /* New enhanced classes */
+  /* New hover animation classes */
   .hover-glow {
     @apply transition-all duration-300 hover:shadow-[0_0_15px_rgba(124,77,255,0.3)];
   }
@@ -226,16 +277,21 @@ body {
   .animated-border:hover::after {
     @apply w-full;
   }
+  
+  /* Enhanced file type badge */
+  .file-badge {
+    @apply absolute top-0 right-0 w-3 h-3 rounded-full;
+  }
+  
+  .file-badge.html {
+    @apply bg-[#f06529];
+  }
+  
+  .file-badge.css {
+    @apply bg-[#2965f1];
+  }
+  
+  .file-badge.js {
+    @apply bg-[#f7df1e];
+  }
 }
-
-/* Keyframe animations for enhanced effects */
-@keyframes subtle-float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-  100% { transform: translateY(0); }
-}
-
-.float-animation {
-  animation: subtle-float 3s ease-in-out infinite;
-}
-
