@@ -8,7 +8,7 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { useSettings } from "@/contexts/SettingsContext";
 import { motion } from "framer-motion";
-import { FileCode, FileText, FileCss } from "lucide-react";
+import { FileCode, FileText, File } from "lucide-react";
 
 interface CodeEditorProps {
   language: string;
@@ -41,7 +41,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       case "html":
         return <FileText size={16} className="text-[#f06529]" />;
       case "css":
-        return <FileCss size={16} className="text-[#2965f1]" />;
+        return <File size={16} className="text-[#2965f1]" />;
       default:
         return <FileCode size={16} className="text-[#f7df1e]" />;
     }
