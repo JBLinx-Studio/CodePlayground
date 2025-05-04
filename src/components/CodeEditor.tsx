@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { basicSetup } from "@codemirror/basic-setup";
 import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
@@ -7,8 +7,9 @@ import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { useSettings } from "@/contexts/SettingsContext";
-import { motion } from "framer-motion";
-import { FileCode, FileText, File } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileCode, FileText, File, Copy, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface CodeEditorProps {
   language: string;
@@ -34,6 +35,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const { settings } = useSettings();
+  const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   // Helper function to get icon based on language
   const getFileIcon = () => {
@@ -45,6 +48,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       default:
         return <FileCode size={16} className="text-[#f7df1e]" />;
     }
+  };
+
+  // Handle code copying
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    toast.success(`Copied ${displayName} to clipboard`);
+    
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   useEffect(() => {
@@ -87,6 +101,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             height: "100%",
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
             fontSize: settings.fontSize,
+            transition: "background-color 0.3s, color 0.3s",
           },
           ".cm-content": {
             fontFamily: '"JetBrains Mono", "Fira Code", monospace',
@@ -98,21 +113,33 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             color: settings.theme === 'dark' ? "#9ca3af" : "#6c757d",
             border: "none",
             borderRight: settings.theme === 'dark' ? "1px solid #2d3748" : "1px solid #e2e8f0",
+            transition: "background-color 0.3s, color 0.3s, border-color 0.3s",
+            paddingRight: "8px",
+            minWidth: "40px",
+            display: "flex",
+            justifyContent: "flex-end",
           },
-          ".cm-activeLine": { 
-            backgroundColor: settings.theme === 'dark' ? "rgba(45, 55, 72, 0.4)" : "rgba(225, 235, 245, 0.7)"
+          ".cm-lineNumbers": {
+            color: settings.theme === 'dark' ? "#64748b" : "#94a3b8",
           },
           ".cm-activeLineGutter": {
             backgroundColor: settings.theme === 'dark' ? "#1a202c" : "#cbd5e1",
             color: settings.theme === 'dark' ? "#7c3aed" : "#6366f1",
             fontWeight: "bold",
+            borderRadius: "2px",
+          },
+          ".cm-activeLine": { 
+            backgroundColor: settings.theme === 'dark' ? "rgba(45, 55, 72, 0.4)" : "rgba(225, 235, 245, 0.7)",
+            borderRadius: "2px",
           },
           ".cm-selectionMatch": { 
-            backgroundColor: settings.theme === 'dark' ? "rgba(124, 58, 237, 0.2)" : "rgba(99, 102, 241, 0.2)" 
+            backgroundColor: settings.theme === 'dark' ? "rgba(124, 58, 237, 0.2)" : "rgba(99, 102, 241, 0.2)",
+            borderRadius: "2px",
           },
           ".cm-matchingBracket": {
             backgroundColor: settings.theme === 'dark' ? "rgba(124, 58, 237, 0.3)" : "rgba(99, 102, 241, 0.3)",
             borderBottom: "2px solid #7c3aed",
+            borderRadius: "2px",
           },
           ".cm-cursor": {
             borderLeft: settings.theme === 'dark' ? "2px solid #a78bfa" : "2px solid #8b5cf6",
@@ -120,18 +147,54 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           ".cm-line": {
             padding: "0 10px",
           },
-          // Enhanced syntax highlighting
-          ".cm-keyword": { color: settings.theme === 'dark' ? "#f472b6" : "#db2777", fontWeight: "bold" },
-          ".cm-property": { color: settings.theme === 'dark' ? "#93c5fd" : "#3b82f6" },
-          ".cm-string": { color: settings.theme === 'dark' ? "#a5b4fc" : "#6366f1" },
-          ".cm-function": { color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6", fontWeight: "500" },
-          ".cm-comment": { color: settings.theme === 'dark' ? "#6b7280" : "#9ca3af", fontStyle: "italic" },
-          ".cm-number": { color: settings.theme === 'dark' ? "#fb923c" : "#ea580c" },
-          ".cm-atom": { color: settings.theme === 'dark' ? "#e879f9" : "#d946ef" },
-          ".cm-operator": { color: settings.theme === 'dark' ? "#d1d5db" : "#4b5563" },
-          ".cm-meta": { color: settings.theme === 'dark' ? "#94a3b8" : "#64748b" },
-          ".cm-tag": { color: settings.theme === 'dark' ? "#f87171" : "#ef4444" },
-          ".cm-attribute": { color: settings.theme === 'dark' ? "#fcd34d" : "#f59e0b" },
+          // Enhanced syntax highlighting with smoother transitions
+          ".cm-keyword": { 
+            color: settings.theme === 'dark' ? "#f472b6" : "#db2777", 
+            fontWeight: "bold",
+            transition: "color 0.3s",
+          },
+          ".cm-property": { 
+            color: settings.theme === 'dark' ? "#93c5fd" : "#3b82f6",
+            transition: "color 0.3s",
+          },
+          ".cm-string": { 
+            color: settings.theme === 'dark' ? "#a5b4fc" : "#6366f1",
+            transition: "color 0.3s", 
+          },
+          ".cm-function": { 
+            color: settings.theme === 'dark' ? "#c4b5fd" : "#8b5cf6", 
+            fontWeight: "500",
+            transition: "color 0.3s",
+          },
+          ".cm-comment": { 
+            color: settings.theme === 'dark' ? "#6b7280" : "#9ca3af", 
+            fontStyle: "italic",
+            transition: "color 0.3s",
+          },
+          ".cm-number": { 
+            color: settings.theme === 'dark' ? "#fb923c" : "#ea580c",
+            transition: "color 0.3s",
+          },
+          ".cm-atom": { 
+            color: settings.theme === 'dark' ? "#e879f9" : "#d946ef",
+            transition: "color 0.3s",
+          },
+          ".cm-operator": { 
+            color: settings.theme === 'dark' ? "#d1d5db" : "#4b5563",
+            transition: "color 0.3s",
+          },
+          ".cm-meta": { 
+            color: settings.theme === 'dark' ? "#94a3b8" : "#64748b",
+            transition: "color 0.3s",
+          },
+          ".cm-tag": { 
+            color: settings.theme === 'dark' ? "#f87171" : "#ef4444",
+            transition: "color 0.3s",
+          },
+          ".cm-attribute": { 
+            color: settings.theme === 'dark' ? "#fcd34d" : "#f59e0b",
+            transition: "color 0.3s",
+          },
         }),
       ],
     });
@@ -166,7 +229,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   return (
     <motion.div 
-      className={`flex-1 min-h-[100px] flex flex-col border ${isActive ? 'border-[#6366f1]/50' : 'border-[#2d3748]'} dark:border-[#374151] overflow-hidden rounded-lg mb-4 shadow-lg ${
+      className={`flex-1 min-h-[100px] flex flex-col border ${
+        isActive ? 'border-[#6366f1]/50' : 'border-[#2d3748]'
+      } dark:border-[#374151] overflow-hidden rounded-lg mb-4 shadow-lg ${
         isActive ? 'ring-2 ring-[#6366f1]/30' : ''
       } transition-all duration-300 hover:shadow-xl`}
       initial={{ opacity: 0, y: 10 }}
@@ -174,6 +239,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       transition={{ duration: 0.3, ease: "easeOut" }}
       onClick={onSelect}
       whileHover={{ y: -2 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <div 
         className={`px-4 py-2 flex justify-between items-center ${
@@ -186,13 +253,39 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           {getFileIcon()}
           {displayName}
         </span>
-        <motion.span
-          className="text-xs px-2 py-1 rounded-md font-mono transition-all duration-300"
-          style={{ backgroundColor: tagBgColor, color: tagColor }}
-          whileHover={{ scale: 1.05 }}
-        >
-          {language}
-        </motion.span>
+        
+        <div className="flex items-center gap-2">
+          <AnimatePresence>
+            {(hovered || copied) && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyToClipboard();
+                }}
+                className={`p-1 rounded transition-colors duration-200 ${
+                  copied 
+                    ? 'bg-green-500/20 text-green-400' 
+                    : 'bg-[#374151]/30 text-[#9ca3af] hover:text-white hover:bg-[#374151]/50'
+                }`}
+                aria-label="Copy code"
+              >
+                {copied ? <CheckCircle2 size={14} /> : <Copy size={14} />}
+              </motion.button>
+            )}
+          </AnimatePresence>
+          
+          <motion.span
+            className="text-xs px-2 py-1 rounded-md font-mono transition-all duration-300"
+            style={{ backgroundColor: tagBgColor, color: tagColor }}
+            whileHover={{ scale: 1.05 }}
+          >
+            {language}
+          </motion.span>
+        </div>
       </div>
       <div className="flex-1 overflow-hidden bg-[#0f1117] dark:bg-[#151922] relative min-h-[200px]">
         <div ref={editorRef} className="absolute inset-0 overflow-auto" />

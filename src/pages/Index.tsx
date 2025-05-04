@@ -7,6 +7,7 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AppHeader } from "@/components/AppHeader";
 import { MobileControls } from "@/components/MobileControls";
 import { EditorContainer } from "@/components/EditorContainer";
+import { StatusBar } from "@/components/StatusBar";
 import { Toaster } from "sonner";
 
 const Index = () => {
@@ -25,6 +26,7 @@ const Index = () => {
             <div className="flex-1 p-2 md:p-3 overflow-hidden flex flex-col">
               <EditorContainer />
             </div>
+            <StatusBar />
             <motion.footer 
               className="py-2 px-4 text-xs text-center text-[#9ca3af] bg-gradient-to-r from-[#0a0e17]/70 to-[#111827]/70 backdrop-blur-sm border-t border-[#2d3748]/50 flex items-center justify-center gap-2"
               initial={{ y: 20, opacity: 0 }}

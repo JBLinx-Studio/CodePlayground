@@ -72,12 +72,23 @@ body {
   font-feature-settings: "liga" 1;
 }
 
+/* CodeMirror focused and editor gutter improvements */
+.cm-focused {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.cm-gutters {
+  font-size: 12px !important;
+}
+
 /* Ensure preview iframe takes full height */
 .preview-iframe {
   height: 100% !important;
   min-height: 100% !important;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
 /* Enhanced scrollbar for CodeEditor to handle multiple editors */
@@ -182,6 +193,30 @@ body {
   0% { border-color: rgba(99, 102, 241, 0.3); }
   50% { border-color: rgba(99, 102, 241, 0.6); }
   100% { border-color: rgba(99, 102, 241, 0.3); }
+}
+
+/* Code folding support */
+.cm-foldGutter {
+  width: 1.4em;
+  font-family: monospace;
+  cursor: pointer;
+}
+
+.cm-foldGutter-open:after {
+  content: "▾";
+}
+
+.cm-foldGutter-folded:after {
+  content: "▸";
+}
+
+.cm-foldPlaceholder {
+  background-color: rgba(99, 102, 241, 0.1);
+  border-radius: 4px;
+  margin: 0 2px;
+  padding: 0 2px;
+  color: rgba(99, 102, 241, 0.7);
+  cursor: pointer;
 }
 
 /* Apply new animations */
@@ -293,5 +328,31 @@ body {
   
   .file-badge.js {
     @apply bg-[#f7df1e];
+  }
+
+  /* New status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-dot.online {
+    @apply bg-green-500;
+  }
+
+  .status-dot.offline {
+    @apply bg-red-500;
+  }
+
+  .status-dot.away {
+    @apply bg-yellow-500;
+  }
+
+  .status-dot.busy {
+    @apply bg-purple-500;
+  }
+
+  /* Enhanced code editor line number styles */
+  .line-numbers {
+    @apply text-xs font-mono text-right pr-2 select-none;
   }
 }
