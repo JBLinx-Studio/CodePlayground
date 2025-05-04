@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,6 +12,12 @@
   --border-color: #2e3646;
   --accent-color: #7c4dff;
   --accent-hover: #6a3df7;
+  
+  /* New variables for enhanced styling */
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #3b82f6;
 }
 
 * {
@@ -232,6 +237,95 @@ body {
   animation: border-glow 2s ease-in-out infinite;
 }
 
+/* NEW: Animated gradients for buttons and cards */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-shift {
+  background-size: 200% 200%;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* NEW: Shimmer effect for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-effect {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.05) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* NEW: Subtle focus ring for accessibility */
+.focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6366f1] focus-visible:ring-opacity-75;
+  transition: box-shadow 0.2s ease;
+}
+
+/* NEW: Enhanced status indicators */
+.status-indicator {
+  @apply w-2 h-2 rounded-full relative;
+}
+
+.status-indicator::after {
+  content: '';
+  @apply absolute inset-0 rounded-full;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-indicator.online {
+  @apply bg-green-500;
+}
+
+.status-indicator.offline {
+  @apply bg-red-500;
+}
+
+.status-indicator.away {
+  @apply bg-amber-500;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* NEW: 3D button effect */
+.button-3d {
+  @apply relative shadow-lg transform transition-all duration-200;
+  transform-style: preserve-3d;
+}
+
+.button-3d:hover {
+  transform: translateY(-2px) translateZ(5px);
+  @apply shadow-xl;
+}
+
+.button-3d:active {
+  transform: translateY(0) translateZ(2px);
+  @apply shadow-md;
+}
+
 @layer components {
   .glassmorphism {
     @apply bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg;
@@ -354,5 +448,63 @@ body {
   /* Enhanced code editor line number styles */
   .line-numbers {
     @apply text-xs font-mono text-right pr-2 select-none;
+  }
+
+  /* New glass card style */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-lg shadow-lg;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transition: 0.5s;
+    pointer-events: none;
+  }
+  
+  .glass-card:hover::before {
+    left: 100%;
+  }
+  
+  /* New tab styles */
+  .tab {
+    @apply px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 focus:outline-none;
+  }
+  
+  .tab.active {
+    @apply border-[#6366f1] text-[#6366f1];
+  }
+  
+  .tab:not(.active) {
+    @apply border-transparent text-[#9ca3af] hover:text-white hover:border-[#9ca3af]/50;
+  }
+  
+  /* New button variants */
+  .btn-success {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white;
+  }
+  
+  .btn-warning {
+    @apply bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white;
+  }
+  
+  .btn-danger {
+    @apply bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white;
+  }
+  
+  .btn-info {
+    @apply bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white;
   }
 }
