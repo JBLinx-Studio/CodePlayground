@@ -1,23 +1,108 @@
 
 import { useEffect, useRef, useState } from "react";
-import { RefreshCw, Smartphone, Tablet, Monitor, ExternalLink, Copy, Terminal, X } from "lucide-react";
+import { RefreshCw, Smartphone, Tablet, Monitor, ExternalLink, Copy, Terminal, X, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
+import { mockBackend, createMockFetchForIframe } from "@/utils/MockBackendService";
 
 interface PreviewPanelProps {
   html: string;
   css: string;
   js: string;
+  showBackendPanel?: boolean;
+  onToggleBackendPanel?: () => void;
 }
 
-export const PreviewPanel = ({ html, css, js }: PreviewPanelProps) => {
+export const PreviewPanel = ({ 
+  html, 
+  css, 
+  js, 
+  showBackendPanel = false,
+  onToggleBackendPanel
+}: PreviewPanelProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [viewportSize, setViewportSize] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [isLoading, setIsLoading] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState<{type: 'log' | 'error' | 'warn'; content: string}[]>([]);
   const [showConsole, setShowConsole] = useState(false);
+  
+  // Handle mock fetch requests from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'mock-fetch') {
+        const { url, options } = event.data;
+        
+        // Process request using mock backend
+        mockBackend.fetch(url, options)
+          .then(async (response) => {
+            const contentType = response.headers.get('Content-Type');
+            let data;
+            
+            if (contentType && contentType.includes('application/json')) {
+              data = await response.json();
+            } else {
+              data = await response.text();
+            }
+            
+            // Convert headers to plain object
+            const headers: Record<string, string> = {};
+            response.headers.forEach((value, key) => {
+              headers[key] = value;
+            });
+            
+            // Send response back to iframe
+            if (iframeRef.current && iframeRef.current.contentWindow) {
+              iframeRef.current.contentWindow.postMessage({
+                type: 'mock-fetch-response',
+                url,
+                response: {
+                  data,
+                  status: response.status,
+                  headers
+                }
+              }, '*');
+            }
+          })
+          .catch(error => {
+            console.error('Mock backend error:', error);
+            
+            // Send error response back to iframe
+            if (iframeRef.current && iframeRef.current.contentWindow) {
+              iframeRef.current.contentWindow.postMessage({
+                type: 'mock-fetch-response',
+                url,
+                response: {
+                  data: { error: 'Internal server error' },
+                  status: 500,
+                  headers: { 'Content-Type': 'application/json' }
+                }
+              }, '*');
+            }
+          });
+      }
+      
+      // Handle console logs
+      if (event.data && event.data.type === 'console-log') {
+        setConsoleOutput(prev => [
+          ...prev, 
+          { 
+            type: event.data.level as 'log' | 'error' | 'warn', 
+            content: event.data.content 
+          }
+        ]);
+        
+        // Auto show console when there's an error
+        if (event.data.level === 'error' && !showConsole) {
+          setShowConsole(true);
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [showConsole]);
   
   const updatePreview = () => {
     if (!iframeRef.current) return;
@@ -71,6 +156,9 @@ export const PreviewPanel = ({ html, css, js }: PreviewPanelProps) => {
       };
     `;
     
+    // Add mock fetch implementation
+    const mockFetchScript = createMockFetchForIframe();
+    
     // Combine all code into a complete HTML document
     const combinedOutput = `
       <!DOCTYPE html>
@@ -83,6 +171,7 @@ export const PreviewPanel = ({ html, css, js }: PreviewPanelProps) => {
       </head>
       <body>${html}
         <script>${consoleLogScript}</script>
+        <script>${mockFetchScript}</script>
         <script>${js}</script>
       </body>
       </html>
@@ -98,29 +187,6 @@ export const PreviewPanel = ({ html, css, js }: PreviewPanelProps) => {
       setIsLoading(false);
     }, 500);
   };
-  
-  // Listen for console messages from the iframe
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'console-log') {
-        setConsoleOutput(prev => [
-          ...prev, 
-          { 
-            type: event.data.level as 'log' | 'error' | 'warn', 
-            content: event.data.content 
-          }
-        ]);
-        
-        // Auto show console when there's an error
-        if (event.data.level === 'error' && !showConsole) {
-          setShowConsole(true);
-        }
-      }
-    };
-    
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [showConsole]);
   
   // Update preview when code changes
   useEffect(() => {
@@ -232,6 +298,16 @@ export const PreviewPanel = ({ html, css, js }: PreviewPanelProps) => {
             title="Toggle Console"
           >
             <Terminal size={14} />
+          </Button>
+
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={onToggleBackendPanel}
+            className={`h-7 w-7 p-0 text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38] ${showBackendPanel ? 'bg-[#242a38] text-[#6366f1]' : ''}`}
+            title="Toggle Backend Panel"
+          >
+            <Server size={14} />
           </Button>
 
           <Button 
