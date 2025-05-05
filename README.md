@@ -1,4 +1,4 @@
-# Welcome to CodePlayground
+# Welcome to your Lovable project
 
 ## Project info
 
