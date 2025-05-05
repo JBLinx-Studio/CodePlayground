@@ -1,7 +1,7 @@
 
 export interface FileType {
   content: string;
-  type: 'html' | 'css' | 'js' | 'other';
+  type: 'html' | 'css' | 'js' | 'jsx' | 'ts' | 'tsx' | 'json' | 'md' | 'svg' | 'sql' | 'other';
 }
 
 export interface FileSystemType {
@@ -15,3 +15,10 @@ export interface FileSystemType {
 }
 
 export type FilesState = Record<string, FileType>;
+
+export interface FileTag {
+  color: string;
+  bgColor: string;
+  icon?: string; 
+  label: string;
+}

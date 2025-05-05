@@ -26,9 +26,9 @@ const Index = () => {
       // Show backend feature toast with slight delay
       setTimeout(() => {
         toast.info(
-          "New Feature: Backend Simulation",
+          "Enhanced File Support",
           {
-            description: "Create mock API endpoints with Alt+B or the Backend button",
+            description: "Now supporting TypeScript, React, JSON, and more file formats!",
             duration: 8000,
           }
         );

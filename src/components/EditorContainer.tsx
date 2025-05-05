@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -45,7 +44,7 @@ export const EditorContainer: React.FC = () => {
 
   // Toggle backend panel
   const toggleBackendPanel = () => {
-    setShowBackendPanel(prev => !prev);
+    setShowBackendPanel(!showBackendPanel);
     toast.info(showBackendPanel ? "Backend panel closed" : "Backend panel opened");
   };
 
@@ -94,7 +93,7 @@ export const EditorContainer: React.FC = () => {
       // Alt + A to toggle AI assistant
       if (e.altKey && e.key === 'a') {
         e.preventDefault();
-        setShowAiAssistant(prev => !prev);
+        setShowAiAssistant(!showAiAssistant);
         toast.info(showAiAssistant ? "AI Assistant closed" : "AI Assistant opened");
       }
       
