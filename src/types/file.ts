@@ -1,7 +1,7 @@
 
 export interface FileType {
   content: string;
-  type: 'html' | 'css' | 'js' | 'other';
+  type: 'html' | 'css' | 'js' | 'ts' | 'jsx' | 'tsx' | 'json' | 'md' | 'other';
 }
 
 export interface FileSystemType {
