@@ -28,7 +28,7 @@ const Index = () => {
         toast.info(
           "Enhanced Language Support",
           {
-            description: "Now with HTML, CSS, JS, TypeScript, React, SQL, SVG, JSON, YAML and Markdown",
+            description: "Now with HTML, CSS, JS, TypeScript, React, SQL, SVG, JSON, YAML, XML and Markdown",
             duration: 8000,
           }
         );
@@ -72,7 +72,7 @@ const Index = () => {
             >
               <span>CodePlayground © {new Date().getFullYear()}</span>
               <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
-              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build amazing web experiences with multiple languages</span>
+              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build with HTML, CSS, JS, TypeScript, React & more</span>
             </motion.footer>
             
             <Toaster 
