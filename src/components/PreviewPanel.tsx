@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { RefreshCw, Smartphone, Tablet, Monitor, ExternalLink, Copy, Terminal, X, FileCode, Globe, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
