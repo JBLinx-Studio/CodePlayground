@@ -1,6 +1,6 @@
 
 import React from "react";
-import { FileCode, FileText, File, Folder } from "lucide-react";
+import { FileCode, FileText, File, Folder, Database, Image } from "lucide-react";
 
 /**
  * Get file type icon based on file extension
@@ -17,6 +17,7 @@ export const getFileIcon = (fileName: string, size: number = 16) => {
     case 'js':
       return <FileCode size={size} className="text-[#f7df1e]" />;
     case 'jsx':
+      return <FileCode size={size} className="text-[#61dafb]" />;
     case 'tsx':
       return <FileCode size={size} className="text-[#61dafb]" />;
     case 'ts':
@@ -25,6 +26,15 @@ export const getFileIcon = (fileName: string, size: number = 16) => {
       return <FileCode size={size} className="text-[#8bc34a]" />;
     case 'md':
       return <FileText size={size} className="text-[#9ca3af]" />;
+    case 'svg':
+      return <Image size={size} className="text-[#ff9a00]" />;
+    case 'sql':
+      return <Database size={size} className="text-[#4479a1]" />;
+    case 'yaml':
+    case 'yml':
+      return <FileText size={size} className="text-[#cb171e]" />;
+    case 'xml':
+      return <FileCode size={size} className="text-[#f36518]" />;
     default:
       if (!extension) {
         return <Folder size={size} className="text-[#90caf9]" />;
@@ -77,6 +87,11 @@ export const getLanguageName = (fileName: string): string => {
     case 'ts': return 'TypeScript';
     case 'json': return 'JSON';
     case 'md': return 'Markdown';
+    case 'svg': return 'SVG';
+    case 'sql': return 'SQL';
+    case 'yaml':
+    case 'yml': return 'YAML';
+    case 'xml': return 'XML';
     default: return extension ? extension.toUpperCase() : 'Unknown';
   }
 };
@@ -103,7 +118,56 @@ export const getLanguageTagColors = (fileName: string): {color: string, bgColor:
       return { color: '#8bc34a', bgColor: 'rgba(139, 195, 74, 0.2)' };
     case 'md':
       return { color: '#9ca3af', bgColor: 'rgba(156, 163, 175, 0.2)' };
+    case 'svg':
+      return { color: '#ff9a00', bgColor: 'rgba(255, 154, 0, 0.2)' };
+    case 'sql':
+      return { color: '#4479a1', bgColor: 'rgba(68, 121, 161, 0.2)' };
+    case 'yaml':
+    case 'yml':
+      return { color: '#cb171e', bgColor: 'rgba(203, 23, 30, 0.2)' };
+    case 'xml':
+      return { color: '#f36518', bgColor: 'rgba(243, 101, 24, 0.2)' };
     default:
       return { color: '#9ca3af', bgColor: 'rgba(156, 163, 175, 0.2)' };
   }
+};
+
+/**
+ * Get syntax highlighting mode for code editor
+ */
+export const getSyntaxMode = (fileName: string): string => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  
+  switch(extension) {
+    case 'html': return 'html';
+    case 'css': return 'css';
+    case 'js': return 'javascript';
+    case 'jsx': return 'jsx';
+    case 'tsx': return 'tsx';
+    case 'ts': return 'typescript';
+    case 'json': return 'json';
+    case 'md': return 'markdown';
+    case 'svg': return 'xml';
+    case 'sql': return 'sql';
+    case 'yaml':
+    case 'yml': return 'yaml';
+    case 'xml': return 'xml';
+    default: return 'text';
+  }
+};
+
+/**
+ * Determine if a file is a script file that can be executed
+ */
+export const isExecutableFile = (fileName: string): boolean => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  return ['js', 'jsx', 'ts', 'tsx'].includes(extension || '');
+};
+
+/**
+ * Determine if a file is renderable in the preview panel
+ */
+export const isRenderableFile = (fileName: string): boolean => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  return ['html', 'svg', 'md'].includes(extension || '');
 };

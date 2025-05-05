@@ -28,7 +28,7 @@ const Index = () => {
         toast.info(
           "Enhanced Language Support",
           {
-            description: "Now with HTML, CSS, JS, TypeScript, React, JSON, and Markdown",
+            description: "Now with HTML, CSS, JS, TypeScript, React, SQL, SVG, JSON, YAML and Markdown",
             duration: 8000,
           }
         );

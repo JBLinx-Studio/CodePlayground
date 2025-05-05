@@ -1,12 +1,11 @@
-
 import { useEffect, useRef, useState } from "react";
-import { RefreshCw, Smartphone, Tablet, Monitor, ExternalLink, Copy, Terminal, X, FileCode, Globe } from "lucide-react";
+import { RefreshCw, Smartphone, Tablet, Monitor, ExternalLink, Copy, Terminal, X, FileCode, Globe, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getLanguageName, getFileIcon } from "@/components/utils/EditorUtils";
+import { getLanguageName, getFileIcon, isRenderableFile, isExecutableFile } from "@/components/utils/EditorUtils";
 import { useFileSystem } from "@/contexts/FileSystemContext";
 
 interface PreviewPanelProps {
@@ -30,6 +29,16 @@ export const PreviewPanel = ({
   const [showConsole, setShowConsole] = useState(false);
   const [viewMode, setViewMode] = useState<'browser' | 'file'>('browser');
   
+  // Determine best preview mode based on current file
+  useEffect(() => {
+    const fileType = getCurrentFileType(currentFileName);
+    const isHtml = fileType === 'html' || currentFileName === 'index.html';
+    const isPreviewable = isHtml || isRenderableFile(currentFileName);
+    
+    // Set appropriate view mode based on file type
+    setViewMode(isPreviewable ? 'browser' : 'file');
+  }, [currentFileName, getCurrentFileType]);
+  
   // Handle console logs
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -46,6 +55,10 @@ export const PreviewPanel = ({
         // Auto show console when there's an error
         if (event.data.level === 'error' && !showConsole) {
           setShowConsole(true);
+          toast.error("Error in console", {
+            description: event.data.content.substring(0, 50) + (event.data.content.length > 50 ? '...' : ''),
+            duration: 5000
+          });
         }
       }
     };
@@ -105,28 +118,165 @@ export const PreviewPanel = ({
         return false;
       };
     `;
-    
-    // Combine all code into a complete HTML document
-    const combinedOutput = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-        <style>${css}</style>
-      </head>
-      <body>${html}
-        <script>${consoleLogScript}</script>
-        <script>${js}</script>
-      </body>
-      </html>
-    `;
-    
-    // Update the iframe content
-    iframeDocument.open();
-    iframeDocument.write(combinedOutput);
-    iframeDocument.close();
+
+    // Check if the current file is directly renderable 
+    if (isRenderableFile(currentFileName) && currentFileName !== 'index.html') {
+      const content = files[currentFileName]?.content || '';
+      const fileType = getCurrentFileType(currentFileName);
+      
+      // Handle SVG files directly
+      if (fileType === 'svg') {
+        iframeDocument.open();
+        iframeDocument.write(`
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>SVG Preview</title>
+            <style>
+              body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+              svg { max-width: 100%; max-height: 90vh; }
+            </style>
+            <script>${consoleLogScript}</script>
+          </head>
+          <body>
+            ${content}
+          </body>
+          </html>
+        `);
+        iframeDocument.close();
+      } 
+      // Handle markdown with a simple renderer
+      else if (fileType === 'md') {
+        // Add a simple markdown to HTML renderer 
+        const markdownScript = `
+          // Simple markdown to HTML conversion
+          function convertMarkdown(md) {
+            return md
+              // Headers
+              .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+              .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+              .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+              // Bold and italic
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/g, '<em>$1</em>')
+              // Lists
+              .replace(/^\- (.*$)/gm, '<li>$1</li>')
+              .replace(/<\/li>\n<li>/g, '</li><li>')
+              .replace(/<\/li>\n*$/g, '</li></ul>')
+              .replace(/^\<li\>/g, '<ul><li>')
+              // Links
+              .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+              // Code blocks
+              .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+              // Inline code
+              .replace(/`(.*?)`/g, '<code>$1</code>')
+              // Paragraphs
+              .replace(/^\s*(\n)?(.+)/gm, function(m) {
+                return /\<(\/)?(h|ul|ol|li|blockquote|pre|img)/.test(m) ? m : '<p>' + m + '</p>';
+              })
+              .replace(/\n/g, '<br />');
+          }
+        `;
+
+        iframeDocument.open();
+        iframeDocument.write(`
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Markdown Preview</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+              }
+              pre {
+                background: #f4f4f4;
+                padding: 10px;
+                border-radius: 4px;
+                overflow-x: auto;
+              }
+              code {
+                background: #f4f4f4;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-family: monospace;
+              }
+              blockquote {
+                border-left: 4px solid #ddd;
+                padding-left: 16px;
+                color: #666;
+                margin-left: 0;
+              }
+              img { max-width: 100%; }
+              a { color: #0366d6; }
+              h1, h2, h3 { margin-top: 24px; margin-bottom: 16px; }
+              h1 { padding-bottom: 0.3em; border-bottom: 1px solid #eaecef; }
+              h2 { padding-bottom: 0.3em; border-bottom: 1px solid #eaecef; }
+            </style>
+            <script>${consoleLogScript}</script>
+            <script>${markdownScript}</script>
+          </head>
+          <body>
+            <div id="content"></div>
+            <script>
+              document.getElementById('content').innerHTML = convertMarkdown(\`${content.replace(/`/g, '\\`')}\`);
+            </script>
+          </body>
+          </html>
+        `);
+        iframeDocument.close();
+      }
+      // Handle HTML file directly
+      else if (fileType === 'html') {
+        iframeDocument.open();
+        iframeDocument.write(`
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>HTML Preview</title>
+            <script>${consoleLogScript}</script>
+          </head>
+          <body>
+            ${content}
+          </body>
+          </html>
+        `);
+        iframeDocument.close();
+      }
+    } else {
+      // Regular HTML/CSS/JS preview using all combined files
+      const combinedOutput = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+          <style>${css}</style>
+          <title>Code Preview</title>
+        </head>
+        <body>${html}
+          <script>${consoleLogScript}</script>
+          <script>${js}</script>
+        </body>
+        </html>
+      `;
+      
+      // Update the iframe content
+      iframeDocument.open();
+      iframeDocument.write(combinedOutput);
+      iframeDocument.close();
+    }
     
     // Handle the loading state
     setTimeout(() => {
@@ -134,11 +284,11 @@ export const PreviewPanel = ({
     }, 500);
   };
   
-  // Update preview when code changes
+  // Update preview when code changes or when file changes
   useEffect(() => {
     updatePreview();
     setConsoleOutput([]); // Clear console on code change
-  }, [html, css, js, viewMode]);
+  }, [html, css, js, viewMode, currentFileName]);
   
   const handleOpenExternalPreview = () => {
     if (viewMode !== 'browser') {
@@ -146,6 +296,23 @@ export const PreviewPanel = ({
       return;
     }
     
+    let content = '';
+    const fileType = getCurrentFileType(currentFileName);
+    
+    // If it's a single renderable file, use that content
+    if (isRenderableFile(currentFileName) && currentFileName !== 'index.html') {
+      content = files[currentFileName]?.content || '';
+      
+      if (fileType === 'svg') {
+        const blob = new Blob([content], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        toast.success("SVG opened in new tab");
+        return;
+      }
+    }
+    
+    // Otherwise use the combined HTML/CSS/JS
     const blob = new Blob([
       `<!DOCTYPE html>
       <html lang="en">
@@ -212,13 +379,32 @@ export const PreviewPanel = ({
     setShowConsole(prev => !prev);
   };
 
+  const downloadFile = () => {
+    const fileContent = files[currentFileName]?.content || '';
+    const fileType = getCurrentFileType(currentFileName);
+    
+    // Create a blob with the file content
+    const blob = new Blob([fileContent], { type: `text/${fileType}` });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary link and trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = currentFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast.success(`Downloaded ${currentFileName}`);
+  };
+
   // Get file content for direct preview
   const getFileContent = () => {
     const fileContent = files[currentFileName]?.content || '';
     const fileType = getCurrentFileType(currentFileName);
     
     if (fileType === 'md') {
-      // For markdown, we could render it properly if we had a markdown renderer
       return (
         <div className="bg-white p-6 font-mono whitespace-pre-wrap text-gray-800 h-full overflow-auto">
           {fileContent}
@@ -244,27 +430,22 @@ export const PreviewPanel = ({
         );
       }
     }
+    
+    if (fileType === 'svg') {
+      return (
+        <div className="bg-white p-6 h-full overflow-auto flex items-center justify-center">
+          <div className="max-w-full max-h-[70vh]" dangerouslySetInnerHTML={{ __html: fileContent }} />
+        </div>
+      );
+    }
 
-    // For all other files, just show as text
+    // For all other files, show as text
     return (
       <div className="bg-[#1a1f2c] p-6 font-mono whitespace-pre-wrap text-[#e4e5e7] h-full overflow-auto">
         {fileContent}
       </div>
     );
   };
-  
-  // Determine if the preview should show browser or direct file view
-  useEffect(() => {
-    // Check if current file can be shown in browser preview
-    const fileType = getCurrentFileType(currentFileName);
-    if (fileType === 'html') {
-      setViewMode('browser');
-    } else if (currentFileName === 'index.html') {
-      setViewMode('browser');
-    } else {
-      setViewMode('file');
-    }
-  }, [currentFileName]);
   
   return (
     <div className="flex flex-col h-full">
@@ -323,6 +504,16 @@ export const PreviewPanel = ({
                 title="Toggle Console"
               >
                 <Terminal size={14} />
+              </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={downloadFile}
+                className="h-7 w-7 p-0 text-[#9ca3af] hover:text-[#e4e5e7] hover:bg-[#242a38]"
+                title="Download File"
+              >
+                <Download size={14} />
               </Button>
 
               <Button 
