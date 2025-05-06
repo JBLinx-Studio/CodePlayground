@@ -44,7 +44,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       case "html":
         return <FileText size={16} className="text-[#f06529]" />;
       case "css":
-        return <File size={16} className="text-[#2965f1]" />;
+        return <File size={16} className="text-[#2965f1]" />; // Changed from FileCss to File
       default:
         return <FileCode size={16} className="text-[#f7df1e]" />;
     }
