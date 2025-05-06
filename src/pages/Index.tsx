@@ -18,21 +18,10 @@ const Index = () => {
       toast.success(
         "Welcome to CodePlayground",
         {
-          description: "Build amazing web experiences with fullstack capabilities",
+          description: "Build amazing web experiences with real-time previews",
           duration: 5000,
         }
       );
-
-      // Show backend feature toast with slight delay
-      setTimeout(() => {
-        toast.info(
-          "New Feature: Backend Simulation",
-          {
-            description: "Create mock API endpoints with Alt+B or the Backend button",
-            duration: 8000,
-          }
-        );
-      }, 6000);
     }, 1500);
     
     return () => clearTimeout(timer);
@@ -72,7 +61,7 @@ const Index = () => {
             >
               <span>CodePlayground © {new Date().getFullYear()}</span>
               <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
-              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build amazing fullstack web experiences</span>
+              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build amazing web experiences</span>
             </motion.footer>
             
             <Toaster 
