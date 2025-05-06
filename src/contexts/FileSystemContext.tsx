@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { FileSystemType, FileType, FilesState } from '@/types/file';
 import { toast } from 'sonner';
 import { defaultFiles } from '@/utils/defaultFiles';
+import { initializeDefaultFiles } from '@/utils/fileInitializer';
 
 // Context type
 export interface FileSystemContextType {
