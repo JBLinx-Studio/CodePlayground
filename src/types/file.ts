@@ -12,6 +12,10 @@ export interface FileSystemType {
   updateFile: (fileName: string, content: string) => boolean;
   deleteFile: (fileName: string) => boolean;
   getAllFiles: () => Array<{ name: string; type: string }>;
+  resetToDefaults: () => void;
+  clearAll: () => void;
+  copyCode: () => void;
+  downloadCode: () => void;
 }
 
 export type FilesState = Record<string, FileType>;
