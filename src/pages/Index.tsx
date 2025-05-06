@@ -8,7 +8,6 @@ import { AppHeader } from "@/components/AppHeader";
 import { MobileControls } from "@/components/MobileControls";
 import { EditorContainer } from "@/components/EditorContainer";
 import { StatusBar } from "@/components/StatusBar";
-import { Toaster } from "sonner";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -74,17 +73,6 @@ const Index = () => {
               <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
               <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build with HTML, CSS, JS, TypeScript, React & more</span>
             </motion.footer>
-            
-            <Toaster 
-              position="top-right" 
-              richColors 
-              closeButton 
-              theme="dark"
-              toastOptions={{
-                className: "backdrop-blur-md bg-[#1a1f2c]/80 border border-[#374151]/50 shadow-2xl",
-                duration: 3000,
-              }}
-            />
           </motion.div>
         </LayoutProvider>
       </FileSystemProvider>

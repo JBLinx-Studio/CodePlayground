@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { RefreshCw, Smartphone, Tablet, Monitor, ExternalLink, Copy, Terminal, X, FileCode, Globe, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -154,6 +153,8 @@ export const PreviewPanel = ({
         const markdownScript = `
           // Simple markdown to HTML conversion
           function convertMarkdown(md) {
+            if (!md) return '';
+            
             return md
               // Headers
               .replace(/^### (.*$)/gm, '<h3>$1</h3>')
@@ -170,12 +171,12 @@ export const PreviewPanel = ({
               // Links
               .replace(/\\[(.*?)\\]\\((.*?)\\)/g, '<a href="$2">$1</a>')
               // Code blocks
-              .replace(/\`\`\`([\\s\\S]*?)\`\`\`/g, '<pre><code>$1</code></pre>')
+              .replace(/\\`\\`\\`([\\s\\S]*?)\\`\\`\\`/g, '<pre><code>$1</code></pre>')
               // Inline code
-              .replace(/\`(.*?)\`/g, '<code>$1</code>')
+              .replace(/\\`(.*?)\\`/g, '<code>$1</code>')
               // Paragraphs
               .replace(/^\\s*(\\n)?(.+)/gm, function(m) {
-                return /<(\\/)?h|<(\\/)?ul|<(\\/)?ol|<(\\/)?li|<(\\/)?blockquote|<(\\/)?pre|<(\\/)?img/.test(m) ? m : '<p>' + m + '</p>';
+                return /<(\\/)?h|<(\\/)?ul|<(\\/)?ol|<(\\/)?li|<(\\/)?blockquote|<(\\/)?pre|<(\\/)?img|<(\\/)?code/.test(m) ? m : '<p>' + m + '</p>';
               })
               .replace(/\\n/g, '<br />');
           }
