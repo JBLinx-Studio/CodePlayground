@@ -1,6 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { defaultFiles } from '@/utils/defaultFiles';
 import { initializeDefaultFiles } from '@/utils/fileInitializer';
+import { FileType } from '@/types/file';
+import { toast } from "sonner";
 
 interface File {
   content: string;
@@ -16,6 +19,10 @@ interface FileSystemContextType {
   handleRenameFile: (oldName: string, newName: string) => void;
   getCurrentFileType: (fileName: string) => string;
   getTagColorForFile: (fileName: string) => { color: string; bgColor: string };
+  resetToDefaults: () => void;
+  clearAll: () => void;
+  copyCode: () => void;
+  downloadCode: () => void;
 }
 
 const FileSystemContext = createContext<FileSystemContextType | undefined>(undefined);
@@ -46,11 +53,12 @@ export const FileSystemProvider: React.FC<{children: React.ReactNode}> = ({ chil
   const handleAddFile = (fileName: string) => {
     if (files[fileName]) {
       // Simple alert, can be replaced with a more sophisticated UI notification
-      alert('File already exists!');
+      toast.error('File already exists!');
       return;
     }
     setFiles(prevFiles => ({ ...prevFiles, [fileName]: { content: '' } }));
     setCurrentFile(fileName);
+    toast.success(`Created ${fileName}`);
   };
 
   const handleDeleteFile = (fileName: string) => {
@@ -74,7 +82,7 @@ export const FileSystemProvider: React.FC<{children: React.ReactNode}> = ({ chil
 
   const handleRenameFile = (oldName: string, newName: string) => {
     if (files[newName]) {
-      alert('File already exists!');
+      toast.error('File already exists!');
       return;
     }
 
@@ -88,6 +96,7 @@ export const FileSystemProvider: React.FC<{children: React.ReactNode}> = ({ chil
     });
 
     setCurrentFile(newName);
+    toast.success(`Renamed ${oldName} to ${newName}`);
   };
 
   const getCurrentFileType = (fileName: string): string => {
@@ -126,6 +135,105 @@ export const FileSystemProvider: React.FC<{children: React.ReactNode}> = ({ chil
         return { color: '#9ca3af', bgColor: '#1f2937' };
     }
   };
+
+  // Reset to default code examples
+  const resetToDefaults = () => {
+    const resetFiles = initializeDefaultFiles({});
+    setFiles(resetFiles);
+    setCurrentFile('index.html');
+    toast.success('Reset to defaults successfully');
+  };
+
+  // Clear all code
+  const clearAll = () => {
+    const emptyFiles: Record<string, File> = {};
+    Object.keys(files).forEach(fileName => {
+      const fileType = getCurrentFileType(fileName);
+      let initialContent = '';
+      
+      if (fileType === 'html') initialContent = '<!-- HTML content -->';
+      else if (fileType === 'css') initialContent = '/* CSS styles */';
+      else if (fileType === 'js' || fileType === 'ts') initialContent = '// JavaScript code';
+      
+      emptyFiles[fileName] = { content: initialContent };
+    });
+    
+    setFiles(emptyFiles);
+    toast.success('All content cleared');
+  };
+
+  // Copy code to clipboard
+  const copyCode = () => {
+    const html = files['index.html']?.content || '';
+    const css = files['styles.css']?.content || '';
+    const js = files['script.js']?.content || '';
+    
+    const allCode = `
+/* HTML */
+${html}
+
+/* CSS */
+${css}
+
+/* JavaScript */
+${js}
+    `;
+    
+    navigator.clipboard.writeText(allCode)
+      .then(() => {
+        toast.success('Code copied to clipboard');
+      })
+      .catch(err => {
+        console.error('Error copying text: ', err);
+        toast.error('Failed to copy code');
+      });
+  };
+
+  // Download code as files
+  const downloadCode = () => {
+    // Function to create and download a file
+    const downloadFile = (content: string, fileName: string, contentType: string) => {
+      const blob = new Blob([content], { type: contentType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+    
+    // Download main files
+    if (files['index.html']?.content) {
+      downloadFile(files['index.html'].content, 'index.html', 'text/html');
+    }
+    
+    if (files['styles.css']?.content) {
+      downloadFile(files['styles.css'].content, 'styles.css', 'text/css');
+    }
+    
+    if (files['script.js']?.content) {
+      downloadFile(files['script.js'].content, 'script.js', 'text/javascript');
+    }
+    
+    // Download any additional custom files
+    Object.keys(files).forEach(fileName => {
+      if (fileName !== 'index.html' && fileName !== 'styles.css' && fileName !== 'script.js') {
+        const fileType = getCurrentFileType(fileName);
+        let contentType = 'text/plain';
+        
+        if (fileType === 'html') contentType = 'text/html';
+        else if (fileType === 'css') contentType = 'text/css';
+        else if (fileType === 'js') contentType = 'text/javascript';
+        else if (fileType === 'json') contentType = 'application/json';
+        
+        downloadFile(files[fileName].content, fileName, contentType);
+      }
+    });
+    
+    toast.success('Files downloaded successfully');
+  };
   
   const contextValue = {
     files,
@@ -136,7 +244,11 @@ export const FileSystemProvider: React.FC<{children: React.ReactNode}> = ({ chil
     handleFileChange,
     handleRenameFile,
     getCurrentFileType,
-    getTagColorForFile
+    getTagColorForFile,
+    resetToDefaults,
+    clearAll,
+    copyCode,
+    downloadCode
   };
 
   return (
