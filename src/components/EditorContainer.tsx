@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -9,7 +8,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { GripVertical, Play, Save, Pin, PinOff, FileCode, Code, Server } from "lucide-react";
+import { GripVertical, Play, Save, Pin, PinOff, Code2, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -394,7 +393,7 @@ export const EditorContainer: React.FC = () => {
         <div className="flex flex-col space-y-1.5">
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11px] text-[#9ca3af] font-medium">Keyboard Shortcuts</span>
-            <Code size={12} className="text-[#9ca3af]" />
+            <Code2 size={12} className="text-[#9ca3af]" />
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5">
             <div className="flex items-center">
