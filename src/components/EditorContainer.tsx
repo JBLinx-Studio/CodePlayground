@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react';
+
+import React, { useRef, useEffect, useState } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
 import { FileExplorer } from "@/components/FileExplorer";
@@ -7,7 +8,7 @@ import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { GripVertical, Play, Save, Pin, PinOff } from "lucide-react";
+import { GripVertical, Play, Save, Pin, PinOff, FileCode, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -115,7 +116,7 @@ export const EditorContainer: React.FC = () => {
   };
 
   const insertCodeFromAI = (code: string) => {
-    handleFileChange(files[currentFile]?.content + '\n' + code);
+    handleFileChange(files[currentFile].content + '\n' + code);
     toast.success("Code inserted successfully");
   };
 
@@ -175,7 +176,7 @@ export const EditorContainer: React.FC = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ duration: 0.3 }}
             className="w-64 h-full flex-shrink-0 bg-gradient-to-b from-[#0c101a]/95 to-[#151d2e]/95"
             style={{ display: view === 'preview' && isMobile ? 'none' : undefined }}
           >
