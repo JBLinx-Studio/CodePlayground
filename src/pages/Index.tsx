@@ -8,7 +8,6 @@ import { AppHeader } from "@/components/AppHeader";
 import { MobileControls } from "@/components/MobileControls";
 import { EditorContainer } from "@/components/EditorContainer";
 import { StatusBar } from "@/components/StatusBar";
-import { Toaster } from "sonner";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -18,17 +17,17 @@ const Index = () => {
       toast.success(
         "Welcome to CodePlayground",
         {
-          description: "Build amazing web experiences with fullstack capabilities",
+          description: "Build amazing web experiences with multi-language support",
           duration: 5000,
         }
       );
 
-      // Show backend feature toast with slight delay
+      // Show supported languages toast with slight delay
       setTimeout(() => {
         toast.info(
-          "New Feature: Backend Simulation",
+          "Enhanced Language Support",
           {
-            description: "Create mock API endpoints with Alt+B or the Backend button",
+            description: "Now with HTML, CSS, JS, TypeScript, React, SQL, SVG, JSON, YAML, XML and Markdown",
             duration: 8000,
           }
         );
@@ -72,19 +71,8 @@ const Index = () => {
             >
               <span>CodePlayground © {new Date().getFullYear()}</span>
               <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
-              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build amazing fullstack web experiences</span>
+              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build with HTML, CSS, JS, TypeScript, React & more</span>
             </motion.footer>
-            
-            <Toaster 
-              position="top-right" 
-              richColors 
-              closeButton 
-              theme="dark"
-              toastOptions={{
-                className: "backdrop-blur-md bg-[#1a1f2c]/80 border border-[#374151]/50 shadow-2xl",
-                duration: 3000,
-              }}
-            />
           </motion.div>
         </LayoutProvider>
       </FileSystemProvider>

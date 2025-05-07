@@ -1,7 +1,7 @@
 
 export interface FileType {
   content: string;
-  type: 'html' | 'css' | 'js' | 'other';
+  type?: 'html' | 'css' | 'js' | 'ts' | 'jsx' | 'tsx' | 'json' | 'md' | 'svg' | 'sql' | 'yaml' | 'xml' | 'other';
 }
 
 export interface FileSystemType {
@@ -12,6 +12,10 @@ export interface FileSystemType {
   updateFile: (fileName: string, content: string) => boolean;
   deleteFile: (fileName: string) => boolean;
   getAllFiles: () => Array<{ name: string; type: string }>;
+  resetToDefaults: () => void;
+  clearAll: () => void;
+  copyCode: () => void;
+  downloadCode: () => void;
 }
 
 export type FilesState = Record<string, FileType>;
