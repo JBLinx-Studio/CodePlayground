@@ -19,8 +19,6 @@ export const getFileIcon = (fileName: string, size: number = 16) => {
     case 'jsx':
     case 'tsx':
       return <FileCode size={size} className="text-[#61dafb]" />;
-    case 'ts':
-      return <FileCode size={size} className="text-[#3178c6]" />;
     case 'json':
       return <FileCode size={size} className="text-[#8bc34a]" />;
     case 'md':

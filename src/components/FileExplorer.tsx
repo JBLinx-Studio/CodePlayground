@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Folder, File, Plus, Trash2, ChevronDown, ChevronUp, Pencil, Check, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { FileType } from "@/types/file";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { getFileIcon, getLanguageTagColors } from "@/components/utils/EditorUtils";
 
 interface FileExplorerProps {
   files: Record<string, FileType>;
@@ -35,8 +33,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const [showHtml, setShowHtml] = useState(true);
   const [showCss, setShowCss] = useState(true);
   const [showJs, setShowJs] = useState(true);
-  const [showTs, setShowTs] = useState(true);
-  const [showReact, setShowReact] = useState(true);
   const [showOther, setShowOther] = useState(true);
   
   // For file renaming
@@ -65,19 +61,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     if (!newFileName) return;
     
     let finalFileName = newFileName;
-    // Add file extension if not present
     if (!finalFileName.includes('.')) {
-      const extensions = {
-        'html': '.html',
-        'css': '.css',
-        'js': '.js',
-        'ts': '.ts',
-        'jsx': '.jsx',
-        'tsx': '.tsx',
-        'json': '.json',
-        'md': '.md'
-      };
-      finalFileName += extensions[newFileType as keyof typeof extensions] || '';
+      if (newFileType === 'html') {
+        finalFileName += '.html';
+      } else if (newFileType === 'css') {
+        finalFileName += '.css';
+      } else if (newFileType === 'js') {
+        finalFileName += '.js';
+      }
     }
 
     onAddFile(finalFileName, newFileType);
@@ -146,20 +137,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   const htmlFiles = Object.keys(files).filter(name => name.endsWith('.html'));
   const cssFiles = Object.keys(files).filter(name => name.endsWith('.css'));
   const jsFiles = Object.keys(files).filter(name => name.endsWith('.js'));
-  const tsFiles = Object.keys(files).filter(name => name.endsWith('.ts'));
-  const reactFiles = Object.keys(files).filter(name => name.endsWith('.jsx') || name.endsWith('.tsx'));
-  const jsonFiles = Object.keys(files).filter(name => name.endsWith('.json'));
-  const mdFiles = Object.keys(files).filter(name => name.endsWith('.md'));
-  const otherFiles = Object.keys(files).filter(name => 
-    !name.endsWith('.html') && 
-    !name.endsWith('.css') && 
-    !name.endsWith('.js') &&
-    !name.endsWith('.ts') &&
-    !name.endsWith('.jsx') &&
-    !name.endsWith('.tsx') &&
-    !name.endsWith('.json') &&
-    !name.endsWith('.md')
-  );
+  const otherFiles = Object.keys(files).filter(name => !name.endsWith('.html') && !name.endsWith('.css') && !name.endsWith('.js'));
 
   // The file rendering helper function
   const renderFileItem = (fileName: string) => (
@@ -173,7 +151,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     >
       {isRenaming && fileToRename === fileName ? (
         <div className="flex-1 flex items-center">
-          {getFileIcon(fileName, 14)}
+          <File size={14} className="mr-2 flex-shrink-0 text-[#ef4444]" />
           <input
             ref={inputRef}
             type="text"
@@ -181,7 +159,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             onChange={(e) => setNewName(e.target.value)}
             onBlur={finishRenaming}
             onKeyDown={handleKeyDown}
-            className="bg-[#1a1f2c] border border-[#6366f1] text-white p-1 text-xs w-full rounded outline-none ml-2"
+            className="bg-[#1a1f2c] border border-[#6366f1] text-white p-1 text-xs w-full rounded outline-none"
             autoFocus
           />
           <Button 
@@ -199,8 +177,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             className="flex items-center flex-1 cursor-pointer overflow-hidden"
             onClick={() => onSelectFile(fileName)}
           >
-            {getFileIcon(fileName, 14)}
-            <span className="text-xs truncate ml-2">
+            <File size={14} className={`mr-2 flex-shrink-0 ${
+              fileName.endsWith('.html') ? 'text-[#ef4444]' :
+              fileName.endsWith('.css') ? 'text-[#3b82f6]' :
+              fileName.endsWith('.js') ? 'text-[#f59e0b]' :
+              'text-[#9ca3af]'
+            }`} />
+            <span className="text-xs truncate">
               {fileName}
               {isFileDocked(fileName) && (
                 <span className="ml-1 text-[#6366f1]">●</span>
@@ -244,49 +227,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       )}
     </div>
   );
-
-  // Helper function to render file section
-  const renderFileSection = (title: string, files: string[], isOpen: boolean, setIsOpen: (value: boolean) => void, iconColor: string) => {
-    if (files.length === 0) return null;
-    
-    return (
-      <motion.div 
-        className="mb-3 rounded-lg overflow-hidden bg-[#151922]/40 border border-[#374151]/30"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div 
-          className="flex items-center px-3 py-2 cursor-pointer hover:bg-[#252b3b]/30 transition-colors bg-gradient-to-r from-[#151922]/80 to-transparent border-b border-[#374151]/30"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? 
-            <ChevronDown size={16} className="mr-2 text-[#9ca3af]" /> : 
-            <ChevronUp size={16} className="mr-2 text-[#9ca3af]" />
-          }
-          <Folder size={16} className={`mr-2 ${iconColor}`} />
-          <span className="text-sm font-medium text-[#e4e5e7]">{title}</span>
-          <span className="ml-2 text-xs bg-[#252b3b] px-1.5 py-0.5 rounded-full text-[#9ca3af]">
-            {files.length}
-          </span>
-        </div>
-        
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div 
-              className="p-1 space-y-1"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {files.map(fileName => renderFileItem(fileName))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    );
-  };
 
   return (
     <motion.div 
@@ -337,11 +277,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                   <option value="html">HTML</option>
                   <option value="css">CSS</option>
                   <option value="js">JavaScript</option>
-                  <option value="ts">TypeScript</option>
-                  <option value="jsx">React JSX</option>
-                  <option value="tsx">React TSX</option>
-                  <option value="json">JSON</option>
-                  <option value="md">Markdown</option>
                 </select>
               </div>
               <Button
@@ -356,7 +291,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
       </div>
 
       <div className="overflow-y-auto flex-1 p-2">
-        {/* Docked Files Section */}
+        {/* Docked Files Section - New! */}
         {dockedFiles && dockedFiles.length > 0 && (
           <motion.div 
             className="mb-3 rounded-lg overflow-hidden bg-[#151922]/40 border border-[#374151]/30"
@@ -377,13 +312,143 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           </motion.div>
         )}
 
-        {/* Render all file type sections */}
-        {renderFileSection("HTML", htmlFiles, showHtml, setShowHtml, "text-[#ef4444]")}
-        {renderFileSection("CSS", cssFiles, showCss, setShowCss, "text-[#3b82f6]")}
-        {renderFileSection("JavaScript", jsFiles, showJs, setShowJs, "text-[#f59e0b]")}
-        {renderFileSection("TypeScript", tsFiles, showTs, setShowTs, "text-[#3178c6]")}
-        {renderFileSection("React", reactFiles, showReact, setShowReact, "text-[#61dafb]")}
-        {renderFileSection("Other", [...jsonFiles, ...mdFiles, ...otherFiles], showOther, setShowOther, "text-[#9ca3af]")}
+        {/* HTML Files */}
+        <motion.div 
+          className="mb-3 rounded-lg overflow-hidden bg-[#151922]/40 border border-[#374151]/30"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <div 
+            className="flex items-center px-3 py-2 cursor-pointer hover:bg-[#252b3b]/30 transition-colors bg-gradient-to-r from-[#151922]/80 to-transparent border-b border-[#374151]/30"
+            onClick={() => setShowHtml(!showHtml)}
+          >
+            {showHtml ? 
+              <ChevronDown size={16} className="mr-2 text-[#9ca3af]" /> : 
+              <ChevronUp size={16} className="mr-2 text-[#9ca3af]" />
+            }
+            <Folder size={16} className="mr-2 text-[#ef4444]" />
+            <span className="text-sm font-medium text-[#e4e5e7]">HTML</span>
+          </div>
+          
+          <AnimatePresence>
+            {showHtml && (
+              <motion.div 
+                className="p-1 space-y-1"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {htmlFiles.map(fileName => renderFileItem(fileName))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* CSS Files */}
+        <motion.div 
+          className="mb-3 rounded-lg overflow-hidden bg-[#151922]/40 border border-[#374151]/30"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <div 
+            className="flex items-center px-3 py-2 cursor-pointer hover:bg-[#252b3b]/30 transition-colors bg-gradient-to-r from-[#151922]/80 to-transparent border-b border-[#374151]/30"
+            onClick={() => setShowCss(!showCss)}
+          >
+            {showCss ? 
+              <ChevronDown size={16} className="mr-2 text-[#9ca3af]" /> : 
+              <ChevronUp size={16} className="mr-2 text-[#9ca3af]" />
+            }
+            <Folder size={16} className="mr-2 text-[#3b82f6]" />
+            <span className="text-sm font-medium text-[#e4e5e7]">CSS</span>
+          </div>
+          
+          <AnimatePresence>
+            {showCss && (
+              <motion.div 
+                className="p-1 space-y-1"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {cssFiles.map(fileName => renderFileItem(fileName))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* JS Files */}
+        <motion.div 
+          className="mb-3 rounded-lg overflow-hidden bg-[#151922]/40 border border-[#374151]/30"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <div 
+            className="flex items-center px-3 py-2 cursor-pointer hover:bg-[#252b3b]/30 transition-colors bg-gradient-to-r from-[#151922]/80 to-transparent border-b border-[#374151]/30"
+            onClick={() => setShowJs(!showJs)}
+          >
+            {showJs ? 
+              <ChevronDown size={16} className="mr-2 text-[#9ca3af]" /> : 
+              <ChevronUp size={16} className="mr-2 text-[#9ca3af]" />
+            }
+            <Folder size={16} className="mr-2 text-[#f59e0b]" />
+            <span className="text-sm font-medium text-[#e4e5e7]">JavaScript</span>
+          </div>
+          
+          <AnimatePresence>
+            {showJs && (
+              <motion.div 
+                className="p-1 space-y-1"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {jsFiles.map(fileName => renderFileItem(fileName))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Other Files */}
+        {otherFiles.length > 0 && (
+          <motion.div 
+            className="mb-3 rounded-lg overflow-hidden bg-[#151922]/40 border border-[#374151]/30"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.4 }}
+          >
+            <div 
+              className="flex items-center px-3 py-2 cursor-pointer hover:bg-[#252b3b]/30 transition-colors bg-gradient-to-r from-[#151922]/80 to-transparent border-b border-[#374151]/30"
+              onClick={() => setShowOther(!showOther)}
+            >
+              {showOther ? 
+                <ChevronDown size={16} className="mr-2 text-[#9ca3af]" /> : 
+                <ChevronUp size={16} className="mr-2 text-[#9ca3af]" />
+              }
+              <Folder size={16} className="mr-2 text-[#9ca3af]" />
+              <span className="text-sm font-medium text-[#e4e5e7]">Other</span>
+            </div>
+            
+            <AnimatePresence>
+              {showOther && (
+                <motion.div 
+                  className="p-1 space-y-1"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {otherFiles.map(fileName => renderFileItem(fileName))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
