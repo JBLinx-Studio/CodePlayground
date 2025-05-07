@@ -1,8 +1,6 @@
 
 /**
- * Simple markdown to HTML converter
- * @param markdown The markdown text to convert
- * @returns HTML representation of the markdown
+ * A utility for converting simple markdown to HTML
  */
 export const convertMarkdown = (markdown: string): string => {
   if (!markdown) return '';
@@ -22,13 +20,13 @@ export const convertMarkdown = (markdown: string): string => {
     .replace(/^<li>/g, '<ul><li>')
     // Links
     .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
-    // Code blocks - fixed escaping
+    // Code blocks
     .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-    // Inline code - fixed escaping
+    // Inline code
     .replace(/`(.*?)`/g, '<code>$1</code>')
     // Paragraphs
     .replace(/^\s*(\n)?(.+)/gm, function(m) {
-      return /<(\/)?(h|ul|ol|li|blockquote|pre|img|code)/.test(m) ? m : '<p>' + m + '</p>';
+      return /<(\/)?h|<(\/)?ul|<(\/)?ol|<(\/)?li|<(\/)?blockquote|<(\/)?pre|<(\/)?img|<(\/)?code/.test(m) ? m : '<p>' + m + '</p>';
     })
     .replace(/\n/g, '<br />');
 };
