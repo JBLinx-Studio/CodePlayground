@@ -87,7 +87,7 @@ export const EditorContainer: React.FC = () => {
       // Alt + A to toggle AI assistant
       if (e.altKey && e.key === 'a') {
         e.preventDefault();
-        setShowAiAssistant(!showAiAssistant);
+        setShowAiAssistant((prev) => !prev);
         toast.info(showAiAssistant ? "AI Assistant closed" : "AI Assistant opened");
       }
       
