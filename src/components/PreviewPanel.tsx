@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { RefreshCw, Smartphone, Tablet, Monitor, ExternalLink, Copy, Terminal, X, FileCode, Globe, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getLanguageName, getFileIcon, isRenderableFile, isExecutableFile } from "@/components/utils/EditorUtils";
 import { useFileSystem } from "@/contexts/FileSystemContext";
-import { convertMarkdown } from "@/utils/markdownUtils";
 
 interface PreviewPanelProps {
   html: string;
@@ -150,8 +150,39 @@ export const PreviewPanel = ({
       } 
       // Handle markdown with a simple renderer
       else if (fileType === 'md') {
-        const markdownHtml = convertMarkdown(content);
-        
+        // Add a simple markdown to HTML renderer 
+        const markdownScript = `
+          // Simple markdown to HTML conversion
+          function convertMarkdown(md) {
+            if (!md) return '';
+            
+            return md
+              // Headers
+              .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+              .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+              .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+              // Bold and italic
+              .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
+              .replace(/\\*(.*?)\\*/g, '<em>$1</em>')
+              // Lists
+              .replace(/^- (.*$)/gm, '<li>$1</li>')
+              .replace(/<\\/li>\\n<li>/g, '</li><li>')
+              .replace(/<\\/li>\\n*$/g, '</li></ul>')
+              .replace(/^<li>/g, '<ul><li>')
+              // Links
+              .replace(/\\[(.*?)\\]\\((.*?)\\)/g, '<a href="$2">$1</a>')
+              // Code blocks
+              .replace(/\`\`\`([\\s\\S]*?)\`\`\`/g, '<pre><code>$1</code></pre>')
+              // Inline code
+              .replace(/\`(.*?)\`/g, '<code>$1</code>')
+              // Paragraphs
+              .replace(/^\\s*(\\n)?(.+)/gm, function(m) {
+                return /<(\\/)?h|<(\\/)?ul|<(\\/)?ol|<(\\/)?li|<(\\/)?blockquote|<(\\/)?pre|<(\\/)?img|<(\\/)?code/.test(m) ? m : '<p>' + m + '</p>';
+              })
+              .replace(/\\n/g, '<br />');
+          }
+        `;
+
         iframeDocument.open();
         iframeDocument.write(`
           <!DOCTYPE html>
@@ -194,9 +225,13 @@ export const PreviewPanel = ({
               h2 { padding-bottom: 0.3em; border-bottom: 1px solid #eaecef; }
             </style>
             <script>${consoleLogScript}</script>
+            <script>${markdownScript}</script>
           </head>
           <body>
-            <div id="content">${markdownHtml}</div>
+            <div id="content"></div>
+            <script>
+              document.getElementById('content').innerHTML = convertMarkdown(\`${content.replace(/`/g, '\\`')}\`);
+            </script>
           </body>
           </html>
         `);
