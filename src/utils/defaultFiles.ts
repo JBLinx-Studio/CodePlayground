@@ -1,85 +1,91 @@
 
-import { FilesState } from '@/types/file';
-
-export const defaultFiles: FilesState = {
-  'index.html': {
-    content: `<!DOCTYPE html>
+export const defaultFiles = {
+  'index.html': `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Web App</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Web Playground</title>
 </head>
 <body>
   <div id="app">
     <h1>Welcome to CodePlayground</h1>
-    <p>Start editing to see your changes come to life!</p>
-    <button id="demo-button">Click Me!</button>
+    <p>Edit the files to start building your web application!</p>
+    <button id="clickMe">Click Me!</button>
   </div>
-  <script src="script.js"></script>
 </body>
 </html>`,
-    type: 'html'
-  },
-  'styles.css': {
-    content: `body {
+
+  'styles.css': `body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
   color: #333;
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #f9f9f9;
 }
 
 h1 {
-  color: #4361ee;
+  color: #3730a3;
   text-align: center;
-  margin-bottom: 20px;
+  margin-top: 40px;
+  font-size: 2.5rem;
 }
 
 p {
-  margin-bottom: 20px;
-  font-size: 18px;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-#demo-button {
-  background-color: #4361ee;
+button {
+  display: block;
+  margin: 0 auto;
+  background-color: #4f46e5;
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 1rem;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
 }
 
-#demo-button:hover {
-  background-color: #3046c5;
+button:hover {
+  background-color: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }`,
-    type: 'css'
-  },
-  'script.js': {
-    content: `// Wait for the DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-  // Get a reference to the button
-  const button = document.getElementById('demo-button');
+
+  'script.js': `// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+  // Get the button element
+  const button = document.getElementById('clickMe');
   
-  // Add a click event listener
-  button.addEventListener('click', function() {
-    alert('Hello from CodePlayground!');
+  // Add click event listener
+  button.addEventListener('click', () => {
+    // Change text and add animation
+    button.textContent = 'Clicked!';
+    button.style.backgroundColor = '#10b981';
     
-    // Change button text after click
-    this.textContent = 'Clicked!';
+    // Create a new element to display a message
+    const message = document.createElement('p');
+    message.textContent = 'Great job! You ran your first script.';
+    message.style.color = '#10b981';
+    message.style.fontWeight = 'bold';
     
-    // Change button color
-    this.style.backgroundColor = '#10b981';
+    // Add it to the page
+    document.getElementById('app').appendChild(message);
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      button.textContent = 'Click Me!';
+      button.style.backgroundColor = '#4f46e5';
+    }, 2000);
   });
   
   // Log a message to the console
   console.log('Script loaded and ready!');
-});`,
-    type: 'js'
-  }
+});`
 };
