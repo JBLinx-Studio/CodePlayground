@@ -18,17 +18,17 @@ const Index = () => {
       toast.success(
         "Welcome to CodePlayground",
         {
-          description: "Build amazing web experiences with multi-language support",
+          description: "Build amazing web experiences with fullstack capabilities",
           duration: 5000,
         }
       );
 
-      // Show supported languages toast with slight delay
+      // Show backend feature toast with slight delay
       setTimeout(() => {
         toast.info(
-          "Enhanced Language Support",
+          "Enhanced File Support",
           {
-            description: "Now with HTML, CSS, JS, TypeScript, React, JSON, and Markdown",
+            description: "Now supporting TypeScript, React, JSON, and more file formats!",
             duration: 8000,
           }
         );
@@ -72,7 +72,7 @@ const Index = () => {
             >
               <span>CodePlayground © {new Date().getFullYear()}</span>
               <span className="inline-block w-1 h-1 rounded-full bg-[#4b5563]"></span>
-              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build amazing web experiences with multiple languages</span>
+              <span className="bg-gradient-to-r from-[#6366f1] to-[#a855f7] bg-clip-text text-transparent font-medium">Build amazing fullstack web experiences</span>
             </motion.footer>
             
             <Toaster 

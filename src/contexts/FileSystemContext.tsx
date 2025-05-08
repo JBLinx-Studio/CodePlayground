@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { FileType, FilesState } from '@/types/file';
+import { FileType, FilesState, FileTag } from '@/types/file';
 import { toast } from 'sonner';
 
 interface FileSystemContextProps {
@@ -11,7 +11,7 @@ interface FileSystemContextProps {
   handleDeleteFile: (fileName: string) => void;
   handleFileChange: (content: string) => void;
   getCurrentFileType: (fileName?: string) => string;
-  getTagColorForFile: (fileName?: string) => { color: string; bgColor: string };
+  getTagColorForFile: (fileName?: string) => FileTag;
   handleRenameFile: (oldName: string, newName: string) => void;
   resetToDefaults: () => void;
   clearAll: () => void;
@@ -101,8 +101,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })`;
 
+// Default React component content
+const defaultReact = `import React, { useState } from 'react';
+
+export const MyComponent = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    setCount(prev => prev + 1);
+  };
+
+  return (
+    <div className="component">
+      <h2>My React Component</h2>
+      <p>You clicked {count} times</p>
+      <button onClick={handleClick}>
+        Click me
+      </button>
+    </div>
+  );
+};
+`;
+
 // Default TypeScript content
-const defaultTs = `// TypeScript code
+const defaultTypeScript = `// TypeScript code
 interface User {
   id: number;
   name: string;
@@ -111,52 +133,22 @@ interface User {
 
 class UserManager {
   private users: User[] = [];
-  
+
   constructor() {
     console.log('UserManager initialized');
   }
-  
+
   addUser(user: User): void {
     this.users.push(user);
-    console.log(\`User \${user.name} added\`);
+    console.log(\`User \${user.name} added successfully\`);
   }
-  
-  getUsers(): User[] {
+
+  getAllUsers(): User[] {
     return this.users;
   }
 }
 
-// Usage example
 const manager = new UserManager();
-manager.addUser({ id: 1, name: 'John Doe', email: 'john@example.com' });
-console.log(manager.getUsers());
-`;
-
-// Default React JSX content
-const defaultJsx = `// React JSX Component
-import React, { useState } from 'react';
-
-function Counter() {
-  const [count, setCount] = useState(0);
-  
-  const increment = () => {
-    setCount(count + 1);
-  };
-  
-  const decrement = () => {
-    setCount(count - 1);
-  };
-  
-  return (
-    <div className="counter">
-      <h2>Counter: {count}</h2>
-      <button onClick={increment}>Increment</button>
-      <button onClick={decrement}>Decrement</button>
-    </div>
-  );
-}
-
-export default Counter;
 `;
 
 // Default JSON content
@@ -167,41 +159,49 @@ const defaultJson = `{
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.0"
+    "react": "^18.0.0",
+    "typescript": "^4.6.3"
   }
 }`;
 
+// Default SQL content
+const defaultSQL = `-- SQL Example
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert some sample data
+INSERT INTO users (name, email) VALUES 
+  ('John Doe', 'john@example.com'),
+  ('Jane Smith', 'jane@example.com');
+
+-- Query the table
+SELECT * FROM users WHERE name LIKE 'J%';
+`;
+
 // Default Markdown content
-const defaultMd = `# Code Playground
+const defaultMarkdown = `# Welcome to Code Playground
 
 ## Features
-
-- HTML, CSS, and JavaScript editing
+- Code editing with syntax highlighting
+- Multiple file types support
 - Live preview
-- TypeScript support
-- React components
-- File management
-- Code sharing
+- Backend simulation
 
-## Getting Started
+## How to use
+1. Edit files in the editor
+2. See the live preview on the right
+3. Add new files as needed
 
-1. Edit the files in the file explorer
-2. See the live preview update in real-time
-3. Save your code for later use
-
-\`\`\`javascript
+\`\`\`js
 // Example code
-function greet(name) {
-  return \`Hello, \${name}!\`;
-}
-console.log(greet('World'));
+console.log('Hello from Markdown!');
 \`\`\`
 
-Learn more at [our website](https://example.com).
+> Enjoy coding!
 `;
 
 const FileSystemContext = createContext<FileSystemContextProps | undefined>(undefined);
@@ -262,17 +262,22 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [currentFile]);
 
   // Get the file type based on a filename
-  const getFileType = (fileName: string): string => {
+  const getFileType = (fileName: string): FileType['type'] => {
     const fileExt = fileName.split('.').pop()?.toLowerCase() || '';
-    if (fileExt === 'html') return 'html';
-    if (fileExt === 'css') return 'css';
-    if (fileExt === 'js') return 'js';
-    if (fileExt === 'ts') return 'ts';
-    if (fileExt === 'jsx') return 'jsx';
-    if (fileExt === 'tsx') return 'tsx';
-    if (fileExt === 'json') return 'json';
-    if (fileExt === 'md') return 'md';
-    return 'other';
+    
+    switch (fileExt) {
+      case 'html': return 'html';
+      case 'css': return 'css';
+      case 'js': return 'js';
+      case 'jsx': return 'jsx';
+      case 'ts': return 'ts';
+      case 'tsx': return 'tsx';
+      case 'json': return 'json';
+      case 'md': return 'md';
+      case 'svg': return 'svg';
+      case 'sql': return 'sql';
+      default: return 'other';
+    }
   };
 
   // Get the file type of a specific file or the current file
@@ -282,45 +287,86 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   // Get tag color for a specific file or the current file
-  const getTagColorForFile = (fileName: string = currentFile) => {
+  const getTagColorForFile = (fileName: string = currentFile): FileTag => {
     const type = getCurrentFileType(fileName);
+    
     switch (type) {
       case 'html':
         return {
           color: '#ef4444',
-          bgColor: 'rgba(239, 68, 68, 0.2)'
+          bgColor: 'rgba(239, 68, 68, 0.2)',
+          icon: 'code',
+          label: 'HTML'
         };
       case 'css':
         return {
           color: '#3b82f6',
-          bgColor: 'rgba(59, 130, 246, 0.2)'
+          bgColor: 'rgba(59, 130, 246, 0.2)',
+          icon: 'file-text',
+          label: 'CSS'
+        };
+      case 'js':
+        return {
+          color: '#f59e0b',
+          bgColor: 'rgba(245, 158, 11, 0.2)',
+          icon: 'file-code',
+          label: 'JS'
         };
       case 'jsx':
-      case 'tsx':
         return {
-          color: '#61dafb',
-          bgColor: 'rgba(97, 218, 251, 0.2)'
+          color: '#60a5fa',
+          bgColor: 'rgba(96, 165, 250, 0.2)',
+          icon: 'file-code',
+          label: 'JSX'
         };
       case 'ts':
         return {
           color: '#3178c6',
-          bgColor: 'rgba(49, 120, 198, 0.2)'
+          bgColor: 'rgba(49, 120, 198, 0.2)',
+          icon: 'file-code',
+          label: 'TS'
+        };
+      case 'tsx':
+        return {
+          color: '#0ea5e9',
+          bgColor: 'rgba(14, 165, 233, 0.2)',
+          icon: 'file-code',
+          label: 'TSX'
         };
       case 'json':
         return {
-          color: '#8bc34a',
-          bgColor: 'rgba(139, 195, 74, 0.2)'
+          color: '#14b8a6',
+          bgColor: 'rgba(20, 184, 166, 0.2)',
+          icon: 'file-text',
+          label: 'JSON'
         };
       case 'md':
         return {
-          color: '#9ca3af',
-          bgColor: 'rgba(156, 163, 175, 0.2)'
+          color: '#6366f1',
+          bgColor: 'rgba(99, 102, 241, 0.2)',
+          icon: 'file-text',
+          label: 'MD'
         };
-      case 'js':
+      case 'svg':
+        return {
+          color: '#ec4899',
+          bgColor: 'rgba(236, 72, 153, 0.2)',
+          icon: 'file',
+          label: 'SVG'
+        };
+      case 'sql':
+        return {
+          color: '#f43f5e',
+          bgColor: 'rgba(244, 63, 94, 0.2)',
+          icon: 'database',
+          label: 'SQL'
+        };
       default:
         return {
-          color: '#f59e0b',
-          bgColor: 'rgba(245, 158, 11, 0.2)'
+          color: '#9ca3af',
+          bgColor: 'rgba(156, 163, 175, 0.2)',
+          icon: 'file',
+          label: 'File'
         };
     }
   };
@@ -384,43 +430,16 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);`;
         type = 'js';
         break;
-      case 'ts':
-        content = defaultTs;
-        type = 'ts';
-        break;
       case 'jsx':
-        content = defaultJsx;
+        content = defaultReact;
         type = 'jsx';
         break;
+      case 'ts':
+        content = defaultTypeScript;
+        type = 'ts';
+        break;
       case 'tsx':
-        content = `// TypeScript React Component
-import React, { useState } from 'react';
-
-interface Props {
-  initialCount?: number;
-}
-
-const Counter: React.FC<Props> = ({ initialCount = 0 }) => {
-  const [count, setCount] = useState(initialCount);
-  
-  const increment = (): void => {
-    setCount(count + 1);
-  };
-  
-  const decrement = (): void => {
-    setCount(count - 1);
-  };
-  
-  return (
-    <div className="counter">
-      <h2>Counter: {count}</h2>
-      <button onClick={increment}>Increment</button>
-      <button onClick={decrement}>Decrement</button>
-    </div>
-  );
-};
-
-export default Counter;`;
+        content = defaultReact.replace('import React', 'import React, { FC }').replace('export const MyComponent', 'export const MyComponent: FC');
         type = 'tsx';
         break;
       case 'json':
@@ -428,8 +447,18 @@ export default Counter;`;
         type = 'json';
         break;
       case 'md':
-        content = defaultMd;
+        content = defaultMarkdown;
         type = 'md';
+        break;
+      case 'svg':
+        content = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="50" r="40" stroke="#4c51bf" stroke-width="3" fill="#6366f1" />
+</svg>`;
+        type = 'svg';
+        break;
+      case 'sql':
+        content = defaultSQL;
+        type = 'sql';
         break;
       default:
         content = '';
@@ -444,6 +473,9 @@ export default Counter;`;
 
     // Select the new file
     setCurrentFile(fileName);
+    
+    // Show success message
+    toast.success(`Created ${fileName}`);
   };
 
   // Handle deleting a file
