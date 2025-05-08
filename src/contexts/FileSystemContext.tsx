@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { FileType, FilesState } from '@/types/file';
 import { toast } from 'sonner';
@@ -100,6 +101,109 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })`;
 
+// Default TypeScript content
+const defaultTs = `// TypeScript code
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+class UserManager {
+  private users: User[] = [];
+  
+  constructor() {
+    console.log('UserManager initialized');
+  }
+  
+  addUser(user: User): void {
+    this.users.push(user);
+    console.log(\`User \${user.name} added\`);
+  }
+  
+  getUsers(): User[] {
+    return this.users;
+  }
+}
+
+// Usage example
+const manager = new UserManager();
+manager.addUser({ id: 1, name: 'John Doe', email: 'john@example.com' });
+console.log(manager.getUsers());
+`;
+
+// Default React JSX content
+const defaultJsx = `// React JSX Component
+import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  
+  const increment = () => {
+    setCount(count + 1);
+  };
+  
+  const decrement = () => {
+    setCount(count - 1);
+  };
+  
+  return (
+    <div className="counter">
+      <h2>Counter: {count}</h2>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+    </div>
+  );
+}
+
+export default Counter;
+`;
+
+// Default JSON content
+const defaultJson = `{
+  "name": "Code Playground",
+  "version": "1.0.0",
+  "description": "A web-based code editor",
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}`;
+
+// Default Markdown content
+const defaultMd = `# Code Playground
+
+## Features
+
+- HTML, CSS, and JavaScript editing
+- Live preview
+- TypeScript support
+- React components
+- File management
+- Code sharing
+
+## Getting Started
+
+1. Edit the files in the file explorer
+2. See the live preview update in real-time
+3. Save your code for later use
+
+\`\`\`javascript
+// Example code
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+console.log(greet('World'));
+\`\`\`
+
+Learn more at [our website](https://example.com).
+`;
+
 const FileSystemContext = createContext<FileSystemContextProps | undefined>(undefined);
 
 export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -163,6 +267,11 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (fileExt === 'html') return 'html';
     if (fileExt === 'css') return 'css';
     if (fileExt === 'js') return 'js';
+    if (fileExt === 'ts') return 'ts';
+    if (fileExt === 'jsx') return 'jsx';
+    if (fileExt === 'tsx') return 'tsx';
+    if (fileExt === 'json') return 'json';
+    if (fileExt === 'md') return 'md';
     return 'other';
   };
 
@@ -185,6 +294,27 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         return {
           color: '#3b82f6',
           bgColor: 'rgba(59, 130, 246, 0.2)'
+        };
+      case 'jsx':
+      case 'tsx':
+        return {
+          color: '#61dafb',
+          bgColor: 'rgba(97, 218, 251, 0.2)'
+        };
+      case 'ts':
+        return {
+          color: '#3178c6',
+          bgColor: 'rgba(49, 120, 198, 0.2)'
+        };
+      case 'json':
+        return {
+          color: '#8bc34a',
+          bgColor: 'rgba(139, 195, 74, 0.2)'
+        };
+      case 'md':
+        return {
+          color: '#9ca3af',
+          bgColor: 'rgba(156, 163, 175, 0.2)'
         };
       case 'js':
       default:
@@ -253,6 +383,53 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);`;
         type = 'js';
+        break;
+      case 'ts':
+        content = defaultTs;
+        type = 'ts';
+        break;
+      case 'jsx':
+        content = defaultJsx;
+        type = 'jsx';
+        break;
+      case 'tsx':
+        content = `// TypeScript React Component
+import React, { useState } from 'react';
+
+interface Props {
+  initialCount?: number;
+}
+
+const Counter: React.FC<Props> = ({ initialCount = 0 }) => {
+  const [count, setCount] = useState(initialCount);
+  
+  const increment = (): void => {
+    setCount(count + 1);
+  };
+  
+  const decrement = (): void => {
+    setCount(count - 1);
+  };
+  
+  return (
+    <div className="counter">
+      <h2>Counter: {count}</h2>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+    </div>
+  );
+};
+
+export default Counter;`;
+        type = 'tsx';
+        break;
+      case 'json':
+        content = defaultJson;
+        type = 'json';
+        break;
+      case 'md':
+        content = defaultMd;
+        type = 'md';
         break;
       default:
         content = '';
