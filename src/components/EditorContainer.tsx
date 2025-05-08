@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
@@ -87,7 +86,7 @@ export const EditorContainer: React.FC = () => {
       // Alt + A to toggle AI assistant
       if (e.altKey && e.key === 'a') {
         e.preventDefault();
-        setShowAiAssistant(!showAiAssistant); // Fixed: This line was causing the error
+        setShowAiAssistant(prev => !prev);
         toast.info(showAiAssistant ? "AI Assistant closed" : "AI Assistant opened");
       }
       
@@ -105,7 +104,7 @@ export const EditorContainer: React.FC = () => {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [view, isMobile, setView, currentFile, toggleDockedFile, isFileDocked, showAiAssistant, setShowAiAssistant]);
+  }, [view, isMobile, setView, currentFile, toggleDockedFile, isFileDocked, showAiAssistant]);
 
   // Helper functions for conditional rendering
   const shouldShowFileExplorer = () => {
