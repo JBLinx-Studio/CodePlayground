@@ -3,18 +3,19 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { PreviewPanel } from "@/components/PreviewPanel";
 import { FileExplorer } from "@/components/FileExplorer";
 import { AIAssistant } from "@/components/AiAssistant";
+import { BackendPanel } from "@/components/BackendPanel";
 import { useLayout } from '@/contexts/LayoutContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from "sonner";
-import { GripVertical, Play, Save, Pin, PinOff, FileCode, Code } from "lucide-react";
+import { GripVertical, Play, Save, Pin, PinOff, FileCode, Code, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getLanguageName } from "@/components/utils/EditorUtils";
 
 export const EditorContainer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showBackendPanel, setShowBackendPanel] = useState<boolean>(false);
   
   const {
     view,
@@ -40,6 +41,12 @@ export const EditorContainer: React.FC = () => {
     getTagColorForFile,
     handleRenameFile
   } = useFileSystem();
+
+  // Toggle backend panel
+  const toggleBackendPanel = () => {
+    setShowBackendPanel(!showBackendPanel);
+    toast.info(showBackendPanel ? "Backend panel closed" : "Backend panel opened");
+  };
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -86,8 +93,14 @@ export const EditorContainer: React.FC = () => {
       // Alt + A to toggle AI assistant
       if (e.altKey && e.key === 'a') {
         e.preventDefault();
-        setShowAiAssistant(prev => !prev);
+        setShowAiAssistant(!showAiAssistant);
         toast.info(showAiAssistant ? "AI Assistant closed" : "AI Assistant opened");
+      }
+      
+      // Alt + B to toggle backend panel
+      if (e.altKey && e.key === 'b') {
+        e.preventDefault();
+        toggleBackendPanel();
       }
       
       // Alt + D to toggle docking for current file
@@ -104,7 +117,7 @@ export const EditorContainer: React.FC = () => {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [view, isMobile, setView, currentFile, toggleDockedFile, isFileDocked, showAiAssistant]);
+  }, [view, isMobile, setView, currentFile, toggleDockedFile, isFileDocked, showAiAssistant, showBackendPanel]);
 
   // Helper functions for conditional rendering
   const shouldShowFileExplorer = () => {
@@ -121,11 +134,11 @@ export const EditorContainer: React.FC = () => {
 
   const runCode = () => {
     setView('preview');
-    toast.success(`Running ${getLanguageName(currentFile)}`);
+    toast.success("Running your code");
   };
 
   const saveCode = () => {
-    toast.success(`Saved ${currentFile}`);
+    toast.success("Changes saved successfully");
   };
   
   // Get all files that should be displayed in the editor
@@ -288,6 +301,17 @@ export const EditorContainer: React.FC = () => {
                 >
                   <Play size={14} /> Run
                 </Button>
+                <Button 
+                  size="sm" 
+                  onClick={toggleBackendPanel}
+                  className={`${
+                    showBackendPanel 
+                      ? 'bg-[#6366f1] hover:bg-[#4f46e5]' 
+                      : 'bg-[#374151] hover:bg-[#4b5563]'
+                  } text-white shadow-lg transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-1`}
+                >
+                  <Server size={14} /> Backend
+                </Button>
               </motion.div>
             </motion.div>
           </ScrollArea>
@@ -302,7 +326,7 @@ export const EditorContainer: React.FC = () => {
           </ResizableHandle>
         )}
 
-        {/* Preview Panel */}
+        {/* Preview and Backend Panel */}
         {(view === 'split' || view === 'preview') && (
           <ResizablePanel 
             defaultSize={100 - panelWidth} 
@@ -310,12 +334,31 @@ export const EditorContainer: React.FC = () => {
             maxSize={80}
             className="h-full"
           >
-            <PreviewPanel 
-              html={files['index.html']?.content || ''} 
-              css={files['styles.css']?.content || ''} 
-              js={files['script.js']?.content || ''}
-              currentFileName={currentFile}
-            />
+            <div className="h-full flex">
+              <div className={`flex-1 ${showBackendPanel ? 'w-[calc(100%-300px)]' : 'w-full'}`}>
+                <PreviewPanel 
+                  html={files['index.html']?.content || ''} 
+                  css={files['styles.css']?.content || ''} 
+                  js={files['script.js']?.content || ''}
+                  showBackendPanel={showBackendPanel}
+                  onToggleBackendPanel={toggleBackendPanel}
+                />
+              </div>
+              
+              {showBackendPanel && (
+                <AnimatePresence>
+                  <motion.div 
+                    className="w-[300px] h-full"
+                    initial={{ opacity: 0, x: 300 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 300 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <BackendPanel />
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </div>
           </ResizablePanel>
         )}
       </ResizablePanelGroup>
@@ -364,6 +407,10 @@ export const EditorContainer: React.FC = () => {
             <div className="flex items-center">
               <kbd className="kbd">Alt+A</kbd>
               <span className="text-[10px] text-[#9ca3af] ml-1.5">AI</span>
+            </div>
+            <div className="flex items-center">
+              <kbd className="kbd">Alt+B</kbd>
+              <span className="text-[10px] text-[#9ca3af] ml-1.5">Backend</span>
             </div>
             <div className="flex items-center">
               <kbd className="kbd">Ctrl+S</kbd>
